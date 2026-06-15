@@ -41,12 +41,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.libreqc.bmap.BmapDiagnostics
+import dev.libreqc.bmap.BmapAddress
 import dev.libreqc.bmap.BmapFrame
 import dev.libreqc.prince.DeviceSnapshot
 import dev.libreqc.prince.DeviceSnapshotParser
 import dev.libreqc.prince.EqBand
 import dev.libreqc.prince.FeatureResult
 import dev.libreqc.prince.ModesSnapshot
+import dev.libreqc.prince.PrinceCommands
 import dev.libreqc.prince.RememberedSource
 import dev.libreqc.prince.ShortcutAction
 import java.io.InputStream
@@ -75,6 +77,7 @@ class MainActivity : ComponentActivity() {
                     state = state,
                     onRefresh = ::startProbe,
                     onSelectPage = { state = state.copy(page = it) },
+                    onSelectMode = ::startModeSelection,
                 )
             }
         }
@@ -92,6 +95,57 @@ class MainActivity : ComponentActivity() {
         if (state.running) return
         state = ProbeUiState(status = "Connecting...", running = true)
         Thread(::runProbe, "libreqc-probe").start()
+    }
+
+    private fun startModeSelection(index: Int) {
+        if (state.running) return
+        state = state.copy(status = "Changing mode...", running = true)
+        Thread(
+            {
+                try {
+                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val device = adapter?.let { selectDevice(it.bondedDevices) }
+                        ?: error("No bonded Bose BMAP device found")
+                    selectMode(device, index)
+                    onMain {
+                        state = state.copy(status = "Mode changed", running = false)
+                        startProbe()
+                    }
+                } catch (error: Throwable) {
+                    line("mode selection failed %s: %s", error.javaClass.simpleName, error.message)
+                    updateStatus("Mode change failed: ${error.message}", running = false)
+                }
+            },
+            "libreqc-mode-selection",
+        ).start()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun selectMode(device: BluetoothDevice, index: Int) {
+        device.createRfcommSocketToServiceRecord(SPP_UUID).use { socket ->
+            socket.connect()
+            val input = socket.inputStream
+            val output = socket.outputStream
+            val runner = ReadProbeRunner(ProbeLogListener())
+            runner.drain(input, 300)
+
+            val command = PrinceCommands.selectMode(index, voicePrompt = false)
+            line("tx mode.select START [31.3] %s", BmapDiagnostics.hex(command))
+            output.write(command)
+            output.flush()
+
+            val readBack = exchange(
+                runner,
+                input,
+                output,
+                ReadProbe("audio_modes.current", BmapAddress(31, 3)),
+            )
+            val actual = readBack.response()?.payload?.firstOrNull()?.toInt()?.and(0xff)
+            check(actual == index) {
+                "Mode read-back mismatch: expected $index, got ${actual ?: "no value"}"
+            }
+            line("mode selection verified index=%d", index)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -310,12 +364,13 @@ private fun LibreQcApp(
     state: ProbeUiState,
     onRefresh: () -> Unit,
     onSelectPage: (AppPage) -> Unit,
+    onSelectMode: (Int) -> Unit,
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         when (state.page) {
             AppPage.Overview -> Overview(state, onRefresh, onSelectPage)
             AppPage.Modes -> FeatureScreen("Modes", onSelectPage) {
-                ModesContent(state.snapshot?.modes)
+                ModesContent(state.snapshot?.modes, state.running, onSelectMode)
             }
             AppPage.Sources -> FeatureScreen("Source", onSelectPage) {
                 SourcesContent(state.snapshot?.sources, state.snapshot?.multipoint)
@@ -445,7 +500,11 @@ private fun FeatureScreen(
 }
 
 @Composable
-private fun ModesContent(modes: ModesSnapshot?) {
+private fun ModesContent(
+    modes: ModesSnapshot?,
+    running: Boolean,
+    onSelectMode: (Int) -> Unit,
+) {
     if (modes == null) return StatusText("Not yet read")
     ValueRow("Current", featureText(modes.current) { "Mode ${it.value}" })
     ValueRow("Default", featureText(modes.default) { "Mode ${it.value}" })
@@ -454,9 +513,30 @@ private fun ModesContent(modes: ModesSnapshot?) {
         featureText(modes.persistence) { if (it.enabled) "On" else "Off" },
     )
     val configs = (modes.configs as? FeatureResult.Available)?.value
+    val favorites = (modes.favorites as? FeatureResult.Available)?.value?.indices.orEmpty()
+    val current = (modes.current as? FeatureResult.Available)?.value?.value
     configs?.forEach {
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
-        ValueRow(it.name.ifEmpty { "Configurable slot ${it.index}" }, "CNC ${it.cncLevel}")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(it.name.ifEmpty { "Configurable slot ${it.index}" })
+                Text(
+                    "CNC ${it.cncLevel}",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (it.index in favorites) {
+                Button(
+                    onClick = { onSelectMode(it.index) },
+                    enabled = !running && it.index != current,
+                ) {
+                    Text(if (it.index == current) "Current" else "Select")
+                }
+            }
+        }
     }
 }
 

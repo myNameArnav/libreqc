@@ -242,5 +242,6 @@ Completed:
 
 Next:
 
-1. Capture and validate each Stage 5 write before enabling it.
-2. Add writes one family at a time in the documented order.
+1. Hardware-accept the implemented mode-selection START + GET read-back path.
+2. Capture and validate the EQ write before enabling it.
+3. Add later writes one family at a time in the documented order.
