@@ -1,0 +1,198 @@
+# LibreQC Stage 2 read-only baseline capture (redacted)
+# Date: 2026-06-14
+# Product: Bose QuietComfort Headphones (prince), product ID 0x4075
+# Firmware: 1.0.6-80+f5f219b
+# Android host: Pixel 8 (shiba), Android 16 build CP1A.260505.005
+# Probe source: Stage 2 read-only working tree, 28 base + 8 derived probes
+# Bose Music: force-stopped before capture
+# Source state: one remembered source connected, not actively streaming
+# Redaction: product name, four MAC addresses, and four device names replaced
+
+--------- beginning of main
+06-14 02:50:22.978 23349 23376 I LibreQCProbe: device name=LE-QC01 address=XX:XX:XX:XX:XX:XX
+06-14 02:50:22.979 23349 23376 I LibreQCProbe: device uuids=[00000000-deca-fade-deca-deafdecacaff, 00001101-0000-1000-8000-00805f9b34fb, 00001108-0000-1000-8000-00805f9b34fb, 0000110b-0000-1000-8000-00805f9b34fb, 0000110e-0000-1000-8000-00805f9b34fb, 0000111e-0000-1000-8000-00805f9b34fb, 9b26d8c0-a8ed-440b-95b0-c4714a518bcc]
+06-14 02:50:22.979 23349 23376 I LibreQCProbe: transport spp-uuid connecting uuid=00001101-0000-1000-8000-00805f9b34fb
+06-14 02:50:23.142 23349 23376 I LibreQCProbe: transport spp-uuid connected
+06-14 02:50:23.452 23349 23376 I LibreQCProbe: probe policy=read-only base_count=28
+06-14 02:50:23.452 23349 23376 I LibreQCProbe: probe start name=product.bmap_version address=[0.1]
+06-14 02:50:23.466 23349 23376 I LibreQCProbe: tx product.bmap_version           00010100
+06-14 02:50:23.530 23349 23376 I LibreQCProbe: rx chunk 00010305312e312e30
+06-14 02:50:23.532 23349 23376 I LibreQCProbe: frame [0.1] STATUS payload=312e312e30 correlation=related text=1.1.0
+06-14 02:50:23.533 23349 23376 I LibreQCProbe: probe result name=product.bmap_version outcome=SUPPORTED elapsed_ms=67 unrelated=0
+06-14 02:50:23.684 23349 23376 I LibreQCProbe: probe start name=product.firmware address=[0.5]
+06-14 02:50:23.684 23349 23376 I LibreQCProbe: tx product.firmware               00050100
+06-14 02:50:23.726 23349 23376 I LibreQCProbe: rx chunk 00050310312e302e362d38302b66356632313962
+06-14 02:50:23.726 23349 23376 I LibreQCProbe: frame [0.5] STATUS payload=312e302e362d38302b66356632313962 correlation=related text=1.0.6-80+f5f219b
+06-14 02:50:23.727 23349 23376 I LibreQCProbe: probe result name=product.firmware outcome=SUPPORTED elapsed_ms=41 unrelated=0
+06-14 02:50:23.878 23349 23376 I LibreQCProbe: probe start name=product.original_name address=[0.15]
+06-14 02:50:23.880 23349 23376 I LibreQCProbe: tx product.original_name          000f0100
+06-14 02:50:23.986 23349 23376 I LibreQCProbe: rx chunk 000f040104
+06-14 02:50:23.988 23349 23376 I LibreQCProbe: frame [0.15] ERROR FunctionNotSupported(4) payload=04 correlation=related text=.
+06-14 02:50:23.989 23349 23376 I LibreQCProbe: probe result name=product.original_name outcome=UNSUPPORTED elapsed_ms=107 error=FunctionNotSupported(4) unrelated=0
+06-14 02:50:24.140 23349 23376 I LibreQCProbe: probe start name=settings.info address=[1.0]
+06-14 02:50:24.142 23349 23376 I LibreQCProbe: tx settings.info                  01000100
+06-14 02:50:24.206 23349 23376 I LibreQCProbe: rx chunk 01000305312e312e30
+06-14 02:50:24.208 23349 23376 I LibreQCProbe: frame [1.0] STATUS payload=312e312e30 correlation=related text=1.1.0
+06-14 02:50:24.208 23349 23376 I LibreQCProbe: probe result name=settings.info outcome=SUPPORTED elapsed_ms=65 unrelated=0
+06-14 02:50:24.359 23349 23376 I LibreQCProbe: probe start name=settings.name address=[1.2]
+06-14 02:50:24.361 23349 23376 I LibreQCProbe: tx settings.name                  01020100
+06-14 02:50:24.427 23349 23376 I LibreQCProbe: rx chunk 010203050051433031
+06-14 02:50:24.430 23349 23376 I LibreQCProbe: frame [1.2] STATUS payload=0051433031 correlation=related text=.QC01
+06-14 02:50:24.431 23349 23376 I LibreQCProbe: probe result name=settings.name outcome=SUPPORTED elapsed_ms=68 unrelated=0
+06-14 02:50:24.584 23349 23376 I LibreQCProbe: probe start name=settings.voice_prompts address=[1.3]
+06-14 02:50:24.585 23349 23376 I LibreQCProbe: tx settings.voice_prompts         01030100
+06-14 02:50:24.628 23349 23376 I LibreQCProbe: rx chunk 01030307810001815e0000
+06-14 02:50:24.629 23349 23376 I LibreQCProbe: frame [1.3] STATUS payload=810001815e0000 correlation=related text=....^..
+06-14 02:50:24.629 23349 23376 I LibreQCProbe: probe result name=settings.voice_prompts outcome=SUPPORTED elapsed_ms=43 unrelated=0
+06-14 02:50:24.780 23349 23376 I LibreQCProbe: probe start name=settings.cnc address=[1.5]
+06-14 02:50:24.781 23349 23376 I LibreQCProbe: tx settings.cnc                   01050100
+06-14 02:50:24.824 23349 23376 I LibreQCProbe: rx chunk 010503030b0003
+06-14 02:50:24.825 23349 23376 I LibreQCProbe: frame [1.5] STATUS payload=0b0003 correlation=related text=...
+06-14 02:50:24.826 23349 23376 I LibreQCProbe: probe result name=settings.cnc outcome=SUPPORTED elapsed_ms=45 unrelated=0
+06-14 02:50:24.978 23349 23376 I LibreQCProbe: probe start name=settings.anr address=[1.6]
+06-14 02:50:24.980 23349 23376 I LibreQCProbe: tx settings.anr                   01060100
+06-14 02:50:25.022 23349 23376 I LibreQCProbe: rx chunk 0106040104
+06-14 02:50:25.024 23349 23376 I LibreQCProbe: frame [1.6] ERROR FunctionNotSupported(4) payload=04 correlation=related text=.
+06-14 02:50:25.025 23349 23376 I LibreQCProbe: probe result name=settings.anr outcome=UNSUPPORTED elapsed_ms=44 error=FunctionNotSupported(4) unrelated=0
+06-14 02:50:25.176 23349 23376 I LibreQCProbe: probe start name=settings.eq address=[1.7]
+06-14 02:50:25.178 23349 23376 I LibreQCProbe: tx settings.eq                    01070100
+06-14 02:50:25.326 23349 23376 I LibreQCProbe: rx chunk 0107030cf60a0200f60a0401f60a0002
+06-14 02:50:25.329 23349 23376 I LibreQCProbe: frame [1.7] STATUS payload=f60a0200f60a0401f60a0002 correlation=related text=............
+06-14 02:50:25.330 23349 23376 I LibreQCProbe: probe result name=settings.eq outcome=SUPPORTED elapsed_ms=152 unrelated=0
+06-14 02:50:25.482 23349 23376 I LibreQCProbe: probe start name=settings.shortcut address=[1.9]
+06-14 02:50:25.484 23349 23376 I LibreQCProbe: tx settings.shortcut              01090100
+06-14 02:50:25.549 23349 23376 I LibreQCProbe: rx chunk 0109030b8009100001400800000080
+06-14 02:50:25.552 23349 23376 I LibreQCProbe: frame [1.9] STATUS payload=8009100001400800000080 correlation=related text=.....@.....
+06-14 02:50:25.552 23349 23376 I LibreQCProbe: probe result name=settings.shortcut outcome=SUPPORTED elapsed_ms=67 unrelated=0
+06-14 02:50:25.704 23349 23376 I LibreQCProbe: probe start name=settings.multipoint address=[1.10]
+06-14 02:50:25.706 23349 23376 I LibreQCProbe: tx settings.multipoint            010a0100
+06-14 02:50:25.768 23349 23376 I LibreQCProbe: rx chunk 010a030107
+06-14 02:50:25.769 23349 23376 I LibreQCProbe: frame [1.10] STATUS payload=07 correlation=related text=.
+06-14 02:50:25.769 23349 23376 I LibreQCProbe: probe result name=settings.multipoint outcome=SUPPORTED elapsed_ms=63 unrelated=0
+06-14 02:50:25.922 23349 23376 I LibreQCProbe: probe start name=status.battery address=[2.2]
+06-14 02:50:25.924 23349 23376 I LibreQCProbe: tx status.battery                 02020100
+06-14 02:50:25.988 23349 23376 I LibreQCProbe: rx chunk 0202030450ffff00
+06-14 02:50:25.995 23349 23376 I LibreQCProbe: frame [2.2] STATUS payload=50ffff00 correlation=related text=P...
+06-14 02:50:25.996 23349 23376 I LibreQCProbe: probe result name=status.battery outcome=SUPPORTED elapsed_ms=72 unrelated=0
+06-14 02:50:26.148 23349 23376 I LibreQCProbe: probe start name=device_management.info address=[4.0]
+06-14 02:50:26.150 23349 23376 I LibreQCProbe: tx device_management.info         04000100
+06-14 02:50:26.214 23349 23376 I LibreQCProbe: rx chunk 04000305312e312e30
+06-14 02:50:26.216 23349 23376 I LibreQCProbe: frame [4.0] STATUS payload=312e312e30 correlation=related text=1.1.0
+06-14 02:50:26.216 23349 23376 I LibreQCProbe: probe result name=device_management.info outcome=SUPPORTED elapsed_ms=66 unrelated=0
+06-14 02:50:26.368 23349 23376 I LibreQCProbe: probe start name=device_management.list address=[4.4]
+06-14 02:50:26.370 23349 23376 I LibreQCProbe: tx device_management.list         04040100
+06-14 02:50:26.458 23349 23376 I LibreQCProbe: rx chunk 0404031902111111111111222222222222333333333333444444444444
+06-14 02:50:26.461 23349 23376 I LibreQCProbe: frame [4.4] STATUS payload=02111111111111222222222222333333333333444444444444 correlation=related text=.111111222222333333444444
+06-14 02:50:26.462 23349 23376 I LibreQCProbe: probe result name=device_management.list outcome=SUPPORTED elapsed_ms=90 unrelated=0
+06-14 02:50:26.462 23349 23376 I LibreQCProbe: probe dynamic=device-details count=8
+06-14 02:50:26.614 23349 23376 I LibreQCProbe: probe start name=device_management.info.0 address=[4.5]
+06-14 02:50:26.616 23349 23376 I LibreQCProbe: tx device_management.info.0       04050106111111111111
+06-14 02:50:26.764 23349 23376 I LibreQCProbe: rx chunk 040503121111111111110001034465766963652d3031
+06-14 02:50:26.767 23349 23376 I LibreQCProbe: frame [4.5] STATUS payload=1111111111110001034465766963652d3031 correlation=related text=111111...Device-01
+06-14 02:50:26.768 23349 23376 I LibreQCProbe: probe result name=device_management.info.0 outcome=SUPPORTED elapsed_ms=150 unrelated=0
+06-14 02:50:26.919 23349 23376 I LibreQCProbe: probe start name=device_management.extended_info.0 address=[4.6]
+06-14 02:50:26.926 23349 23376 I LibreQCProbe: tx device_management.extended_info.0 04060106111111111111
+06-14 02:50:26.990 23349 23376 I LibreQCProbe: rx chunk 040603081111111111110700
+06-14 02:50:26.993 23349 23376 I LibreQCProbe: frame [4.6] STATUS payload=1111111111110700 correlation=related text=111111..
+06-14 02:50:26.993 23349 23376 I LibreQCProbe: probe result name=device_management.extended_info.0 outcome=SUPPORTED elapsed_ms=66 unrelated=0
+06-14 02:50:27.145 23349 23376 I LibreQCProbe: probe start name=device_management.info.1 address=[4.5]
+06-14 02:50:27.147 23349 23376 I LibreQCProbe: tx device_management.info.1       04050106222222222222
+06-14 02:50:27.191 23349 23376 I LibreQCProbe: rx chunk 040503122222222222220302034465766963652d3032
+06-14 02:50:27.194 23349 23376 I LibreQCProbe: frame [4.5] STATUS payload=2222222222220302034465766963652d3032 correlation=related text=222222...Device-02
+06-14 02:50:27.195 23349 23376 I LibreQCProbe: probe result name=device_management.info.1 outcome=SUPPORTED elapsed_ms=46 unrelated=0
+06-14 02:50:27.346 23349 23376 I LibreQCProbe: probe start name=device_management.extended_info.1 address=[4.6]
+06-14 02:50:27.348 23349 23376 I LibreQCProbe: tx device_management.extended_info.1 04060106222222222222
+06-14 02:50:27.411 23349 23376 I LibreQCProbe: rx chunk 04060308222222222222070f
+06-14 02:50:27.412 23349 23376 I LibreQCProbe: frame [4.6] STATUS payload=222222222222070f correlation=related text=222222..
+06-14 02:50:27.413 23349 23376 I LibreQCProbe: probe result name=device_management.extended_info.1 outcome=SUPPORTED elapsed_ms=64 unrelated=0
+06-14 02:50:27.564 23349 23376 I LibreQCProbe: probe start name=device_management.info.2 address=[4.5]
+06-14 02:50:27.567 23349 23376 I LibreQCProbe: tx device_management.info.2       04050106333333333333
+06-14 02:50:27.651 23349 23376 I LibreQCProbe: rx chunk 0405031033333333333300010344657669636533
+06-14 02:50:27.652 23349 23376 I LibreQCProbe: frame [4.5] STATUS payload=33333333333300010344657669636533 correlation=related text=333333...Device3
+06-14 02:50:27.653 23349 23376 I LibreQCProbe: probe result name=device_management.info.2 outcome=SUPPORTED elapsed_ms=85 unrelated=0
+06-14 02:50:27.804 23349 23376 I LibreQCProbe: probe start name=device_management.extended_info.2 address=[4.6]
+06-14 02:50:27.807 23349 23376 I LibreQCProbe: tx device_management.extended_info.2 04060106333333333333
+06-14 02:50:27.931 23349 23376 I LibreQCProbe: rx chunk 040603083333333333330700
+06-14 02:50:27.933 23349 23376 I LibreQCProbe: frame [4.6] STATUS payload=3333333333330700 correlation=related text=333333..
+06-14 02:50:27.933 23349 23376 I LibreQCProbe: probe result name=device_management.extended_info.2 outcome=SUPPORTED elapsed_ms=126 unrelated=0
+06-14 02:50:28.086 23349 23376 I LibreQCProbe: probe start name=device_management.info.3 address=[4.5]
+06-14 02:50:28.089 23349 23376 I LibreQCProbe: tx device_management.info.3       04050106444444444444
+06-14 02:50:28.237 23349 23376 I LibreQCProbe: rx chunk 040503134444444444440004064465766963652d303034
+06-14 02:50:28.240 23349 23376 I LibreQCProbe: frame [4.5] STATUS payload=4444444444440004064465766963652d303034 correlation=related text=444444...Device-004
+06-14 02:50:28.241 23349 23376 I LibreQCProbe: probe result name=device_management.info.3 outcome=SUPPORTED elapsed_ms=150 unrelated=0
+06-14 02:50:28.393 23349 23376 I LibreQCProbe: probe start name=device_management.extended_info.3 address=[4.6]
+06-14 02:50:28.396 23349 23376 I LibreQCProbe: tx device_management.extended_info.3 04060106444444444444
+06-14 02:50:28.439 23349 23376 I LibreQCProbe: rx chunk 040603084444444444440500
+06-14 02:50:28.440 23349 23376 I LibreQCProbe: frame [4.6] STATUS payload=4444444444440500 correlation=related text=444444..
+06-14 02:50:28.440 23349 23376 I LibreQCProbe: probe result name=device_management.extended_info.3 outcome=SUPPORTED elapsed_ms=43 unrelated=0
+06-14 02:50:28.591 23349 23376 I LibreQCProbe: probe start name=device_management.routing address=[4.12]
+06-14 02:50:28.593 23349 23376 I LibreQCProbe: tx device_management.routing      040c0100
+06-14 02:50:28.656 23349 23376 I LibreQCProbe: rx chunk 040c040104
+06-14 02:50:28.659 23349 23376 I LibreQCProbe: frame [4.12] ERROR FunctionNotSupported(4) payload=04 correlation=related text=.
+06-14 02:50:28.660 23349 23376 I LibreQCProbe: probe result name=device_management.routing outcome=UNSUPPORTED elapsed_ms=66 error=FunctionNotSupported(4) unrelated=0
+06-14 02:50:28.811 23349 23376 I LibreQCProbe: probe start name=audio_modes.info address=[31.0]
+06-14 02:50:28.813 23349 23376 I LibreQCProbe: tx audio_modes.info               1f000100
+06-14 02:50:28.856 23349 23376 I LibreQCProbe: rx chunk 1f000305312e302e30
+06-14 02:50:28.863 23349 23376 I LibreQCProbe: frame [31.0] STATUS payload=312e302e30 correlation=related text=1.0.0
+06-14 02:50:28.864 23349 23376 I LibreQCProbe: probe result name=audio_modes.info outcome=SUPPORTED elapsed_ms=50 unrelated=0
+06-14 02:50:29.016 23349 23376 I LibreQCProbe: probe start name=audio_modes.capabilities address=[31.2]
+06-14 02:50:29.018 23349 23376 I LibreQCProbe: tx audio_modes.capabilities       1f020100
+06-14 02:50:29.061 23349 23376 I LibreQCProbe: rx chunk 1f020306020200000009
+06-14 02:50:29.063 23349 23376 I LibreQCProbe: frame [31.2] STATUS payload=020200000009 correlation=related text=......
+06-14 02:50:29.063 23349 23376 I LibreQCProbe: probe result name=audio_modes.capabilities outcome=SUPPORTED elapsed_ms=45 unrelated=0
+06-14 02:50:29.215 23349 23376 I LibreQCProbe: probe start name=audio_modes.current address=[31.3]
+06-14 02:50:29.217 23349 23376 I LibreQCProbe: tx audio_modes.current            1f030100
+06-14 02:50:29.260 23349 23376 I LibreQCProbe: rx chunk 1f03030100
+06-14 02:50:29.263 23349 23376 I LibreQCProbe: frame [31.3] STATUS payload=00 correlation=related text=.
+06-14 02:50:29.264 23349 23376 I LibreQCProbe: probe result name=audio_modes.current outcome=SUPPORTED elapsed_ms=45 unrelated=0
+06-14 02:50:29.415 23349 23376 I LibreQCProbe: probe start name=audio_modes.default address=[31.4]
+06-14 02:50:29.416 23349 23376 I LibreQCProbe: tx audio_modes.default            1f040100
+06-14 02:50:29.562 23349 23376 I LibreQCProbe: rx chunk 1f04030100
+06-14 02:50:29.564 23349 23376 I LibreQCProbe: frame [31.4] STATUS payload=00 correlation=related text=.
+06-14 02:50:29.565 23349 23376 I LibreQCProbe: probe result name=audio_modes.default outcome=SUPPORTED elapsed_ms=146 unrelated=0
+06-14 02:50:29.716 23349 23376 I LibreQCProbe: probe start name=audio_modes.persistence address=[31.5]
+06-14 02:50:29.718 23349 23376 I LibreQCProbe: tx audio_modes.persistence        1f050100
+06-14 02:50:29.740 23349 23376 I LibreQCProbe: rx chunk 1f05030101
+06-14 02:50:29.741 23349 23376 I LibreQCProbe: frame [31.5] STATUS payload=01 correlation=related text=.
+06-14 02:50:29.742 23349 23376 I LibreQCProbe: probe result name=audio_modes.persistence outcome=SUPPORTED elapsed_ms=23 unrelated=0
+06-14 02:50:29.893 23349 23376 I LibreQCProbe: probe start name=audio_modes.config.0 address=[31.6]
+06-14 02:50:29.895 23349 23376 I LibreQCProbe: tx audio_modes.config.0           1f06010100
+06-14 02:50:29.942 23349 23376 I LibreQCProbe: rx chunk 1f06032f0000010000015175696574000000000000000000000000000000000000000000000000000000000000000000000000
+06-14 02:50:29.946 23349 23376 I LibreQCProbe: frame [31.6] STATUS payload=0000010000015175696574000000000000000000000000000000000000000000000000000000000000000000000000 correlation=related text=......Quiet....................................
+06-14 02:50:29.947 23349 23376 I LibreQCProbe: probe result name=audio_modes.config.0 outcome=SUPPORTED elapsed_ms=52 unrelated=0
+06-14 02:50:30.098 23349 23376 I LibreQCProbe: probe start name=audio_modes.config.1 address=[31.6]
+06-14 02:50:30.100 23349 23376 I LibreQCProbe: tx audio_modes.config.1           1f06010101
+06-14 02:50:30.147 23349 23376 I LibreQCProbe: rx chunk 1f06032f0100020000014177617265000000000000000000000000000000000000000000000000000000000000000a00000000
+06-14 02:50:30.151 23349 23376 I LibreQCProbe: frame [31.6] STATUS payload=0100020000014177617265000000000000000000000000000000000000000000000000000000000000000a00000000 correlation=related text=......Aware....................................
+06-14 02:50:30.151 23349 23376 I LibreQCProbe: probe result name=audio_modes.config.1 outcome=SUPPORTED elapsed_ms=50 unrelated=0
+06-14 02:50:30.302 23349 23376 I LibreQCProbe: probe start name=audio_modes.config.2 address=[31.6]
+06-14 02:50:30.304 23349 23376 I LibreQCProbe: tx audio_modes.config.2           1f06010102
+06-14 02:50:30.350 23349 23376 I LibreQCProbe: rx chunk 1f06032f020007010101436f6d6d75746500000000000000000000000000000000000000000000000000000000090000000000
+06-14 02:50:30.354 23349 23376 I LibreQCProbe: frame [31.6] STATUS payload=020007010101436f6d6d75746500000000000000000000000000000000000000000000000000000000090000000000 correlation=related text=......Commute..................................
+06-14 02:50:30.355 23349 23376 I LibreQCProbe: probe result name=audio_modes.config.2 outcome=SUPPORTED elapsed_ms=48 unrelated=0
+06-14 02:50:30.508 23349 23376 I LibreQCProbe: probe start name=audio_modes.config.3 address=[31.6]
+06-14 02:50:30.514 23349 23376 I LibreQCProbe: tx audio_modes.config.3           1f06010103
+06-14 02:50:30.582 23349 23376 I LibreQCProbe: rx chunk 1f06032f0300000101000000000000000000000000000000000000000000000000000000000000000000000000090500000000
+06-14 02:50:30.586 23349 23376 I LibreQCProbe: frame [31.6] STATUS payload=0300000101000000000000000000000000000000000000000000000000000000000000000000000000090500000000 correlation=related text=...............................................
+06-14 02:50:30.587 23349 23376 I LibreQCProbe: probe result name=audio_modes.config.3 outcome=SUPPORTED elapsed_ms=73 unrelated=0
+06-14 02:50:30.739 23349 23376 I LibreQCProbe: probe start name=audio_modes.user_indices address=[31.7]
+06-14 02:50:30.743 23349 23376 I LibreQCProbe: tx audio_modes.user_indices       1f070100
+06-14 02:50:30.850 23349 23376 I LibreQCProbe: rx chunk 1f07030400010203
+06-14 02:50:30.851 23349 23376 I LibreQCProbe: frame [31.7] STATUS payload=00010203 correlation=related text=....
+06-14 02:50:30.852 23349 23376 I LibreQCProbe: probe result name=audio_modes.user_indices outcome=SUPPORTED elapsed_ms=107 unrelated=0
+06-14 02:50:31.003 23349 23376 I LibreQCProbe: probe start name=audio_modes.favorites address=[31.8]
+06-14 02:50:31.005 23349 23376 I LibreQCProbe: tx audio_modes.favorites          1f080100
+06-14 02:50:31.130 23349 23376 I LibreQCProbe: rx chunk 1f0803020407
+06-14 02:50:31.132 23349 23376 I LibreQCProbe: frame [31.8] STATUS payload=0407 correlation=related text=..
+06-14 02:50:31.132 23349 23376 I LibreQCProbe: probe result name=audio_modes.favorites outcome=SUPPORTED elapsed_ms=126 unrelated=0
+06-14 02:50:31.283 23349 23376 I LibreQCProbe: probe start name=audio_modes.settings address=[31.10]
+06-14 02:50:31.285 23349 23376 I LibreQCProbe: tx audio_modes.settings           1f0a0100
+06-14 02:50:31.369 23349 23376 I LibreQCProbe: rx chunk 1f0a040104
+06-14 02:50:31.371 23349 23376 I LibreQCProbe: frame [31.10] ERROR FunctionNotSupported(4) payload=04 correlation=related text=.
+06-14 02:50:31.372 23349 23376 I LibreQCProbe: probe result name=audio_modes.settings outcome=UNSUPPORTED elapsed_ms=86 error=FunctionNotSupported(4) unrelated=0
+06-14 02:50:31.523 23349 23376 I LibreQCProbe: probe start name=audio_modes.names_supported address=[31.11]
+06-14 02:50:31.524 23349 23376 I LibreQCProbe: tx audio_modes.names_supported    1f0b0100
+06-14 02:50:31.609 23349 23376 I LibreQCProbe: rx chunk 1f0b040104
+06-14 02:50:31.612 23349 23376 I LibreQCProbe: frame [31.11] ERROR FunctionNotSupported(4) payload=04 correlation=related text=.
+06-14 02:50:31.613 23349 23376 I LibreQCProbe: probe result name=audio_modes.names_supported outcome=UNSUPPORTED elapsed_ms=86 error=FunctionNotSupported(4) unrelated=0
+06-14 02:50:31.765 23349 23376 I LibreQCProbe: transport spp-uuid complete
