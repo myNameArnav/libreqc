@@ -242,6 +242,13 @@ Completed:
 
 Next:
 
-1. Hardware-accept the implemented mode-selection START + GET read-back path.
-2. Capture and validate the EQ write before enabling it.
-3. Add later writes one family at a time in the documented order.
+1. Capture and validate the EQ write before enabling it.
+2. Add later writes one family at a time in the documented order.
+
+Mode selection was hardware-accepted on 2026-06-15:
+
+- Selected Aware with `1f 03 05 02 01 00`.
+- Verified GET `[31.3]` returned mode index `1`.
+- Restored Quiet with `1f 03 05 02 00 00`.
+- Verified GET `[31.3]` returned mode index `0`.
+- The Compose overview reconciled to each read-back value.

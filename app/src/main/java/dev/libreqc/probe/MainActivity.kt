@@ -507,7 +507,7 @@ private fun ModesContent(
 ) {
     if (modes == null) return StatusText("Not yet read")
     ValueRow("Current", featureText(modes.current) { "Mode ${it.value}" })
-    ValueRow("Default", featureText(modes.default) { "Mode ${it.value}" })
+    ValueRow("Startup mode value", featureText(modes.default) { "Mode ${it.value}" })
     ValueRow(
         "Remember my mode",
         featureText(modes.persistence) { if (it.enabled) "On" else "Off" },
