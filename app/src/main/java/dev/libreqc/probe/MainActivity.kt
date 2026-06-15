@@ -46,8 +46,10 @@ import dev.libreqc.bmap.BmapFrame
 import dev.libreqc.prince.DeviceSnapshot
 import dev.libreqc.prince.DeviceSnapshotParser
 import dev.libreqc.prince.EqBand
+import dev.libreqc.prince.EqParser
 import dev.libreqc.prince.FeatureResult
 import dev.libreqc.prince.ModesSnapshot
+import dev.libreqc.prince.ParseResult
 import dev.libreqc.prince.PrinceCommands
 import dev.libreqc.prince.RememberedSource
 import dev.libreqc.prince.ShortcutAction
@@ -78,6 +80,7 @@ class MainActivity : ComponentActivity() {
                     onRefresh = ::startProbe,
                     onSelectPage = { state = state.copy(page = it) },
                     onSelectMode = ::startModeSelection,
+                    onSetEq = ::startEqSelection,
                 )
             }
         }
@@ -118,6 +121,61 @@ class MainActivity : ComponentActivity() {
             },
             "libreqc-mode-selection",
         ).start()
+    }
+
+    private fun startEqSelection(band: EqBand, target: Int) {
+        if (state.running) return
+        state = state.copy(status = "Changing EQ...", running = true)
+        Thread(
+            {
+                try {
+                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val device = adapter?.let { selectDevice(it.bondedDevices) }
+                        ?: error("No bonded Bose BMAP device found")
+                    setEq(device, band, target)
+                    onMain {
+                        state = state.copy(status = "EQ changed", running = false)
+                        startProbe()
+                    }
+                } catch (error: Throwable) {
+                    line("EQ change failed %s: %s", error.javaClass.simpleName, error.message)
+                    updateStatus("EQ change failed: ${error.message}", running = false)
+                }
+            },
+            "libreqc-eq-selection",
+        ).start()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setEq(device: BluetoothDevice, band: EqBand, target: Int) {
+        device.createRfcommSocketToServiceRecord(SPP_UUID).use { socket ->
+            socket.connect()
+            val input = socket.inputStream
+            val output = socket.outputStream
+            val runner = ReadProbeRunner(ProbeLogListener())
+            runner.drain(input, 300)
+
+            val command = PrinceCommands.setEq(band, target)
+            line("tx EQ set SETGET [1.7] %s", BmapDiagnostics.hex(command))
+            output.write(command)
+            output.flush()
+            runner.drain(input, 300)
+
+            val readBack = exchange(
+                runner,
+                input,
+                output,
+                ReadProbe("settings.eq", BmapAddress(1, 7)),
+            )
+            val parsed = readBack.response()?.let { EqParser.parse(it.payload) }
+            val eq = (parsed as? ParseResult.Success)?.value
+                ?: error("EQ read-back was unavailable or malformed")
+            val actual = eq.ranges.firstOrNull { it.band == band }?.current
+            check(actual == target) {
+                "EQ read-back mismatch: expected $target, got ${actual ?: "no value"}"
+            }
+            line("EQ change verified band=%s target=%d", band, target)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -365,6 +423,7 @@ private fun LibreQcApp(
     onRefresh: () -> Unit,
     onSelectPage: (AppPage) -> Unit,
     onSelectMode: (Int) -> Unit,
+    onSetEq: (EqBand, Int) -> Unit,
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         when (state.page) {
@@ -376,7 +435,7 @@ private fun LibreQcApp(
                 SourcesContent(state.snapshot?.sources, state.snapshot?.multipoint)
             }
             AppPage.Eq -> FeatureScreen("Equalizer", onSelectPage) {
-                EqContent(state.snapshot?.eq)
+                EqContent(state.snapshot?.eq, state.running, onSetEq)
             }
             AppPage.Shortcut -> FeatureScreen("Shortcut", onSelectPage) {
                 ShortcutContent(state.snapshot?.shortcut)
@@ -571,7 +630,11 @@ private fun SourcesContent(
 }
 
 @Composable
-private fun EqContent(eq: FeatureResult<dev.libreqc.prince.EqState>?) {
+private fun EqContent(
+    eq: FeatureResult<dev.libreqc.prince.EqState>?,
+    running: Boolean,
+    onSetEq: (EqBand, Int) -> Unit,
+) {
     val available = (eq as? FeatureResult.Available)?.value
     if (available == null) {
         StatusText(featureStatus(eq))
@@ -579,15 +642,39 @@ private fun EqContent(eq: FeatureResult<dev.libreqc.prince.EqState>?) {
     }
     available.ranges.forEach {
         val band = it.band
-        ValueRow(
-            when (band) {
-                EqBand.Bass -> "Bass"
-                EqBand.Mid -> "Mid"
-                EqBand.Treble -> "Treble"
-                is EqBand.Unknown -> "Range ${band.rangeId}"
-            },
-            "${signed(it.current)}  (${it.minimum} to ${it.maximum})",
-        )
+        val name = when (band) {
+            EqBand.Bass -> "Bass"
+            EqBand.Mid -> "Mid"
+            EqBand.Treble -> "Treble"
+            is EqBand.Unknown -> "Range ${band.rangeId}"
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(name)
+                Text(
+                    "${signed(it.current)}  (${it.minimum} to ${it.maximum})",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = { onSetEq(band, it.current - 1) },
+                    enabled = !running && band !is EqBand.Unknown && it.current > it.minimum,
+                ) {
+                    Text("-")
+                }
+                Button(
+                    onClick = { onSetEq(band, it.current + 1) },
+                    enabled = !running && band !is EqBand.Unknown && it.current < it.maximum,
+                ) {
+                    Text("+")
+                }
+            }
+        }
+        HorizontalDivider(Modifier.padding(vertical = 8.dp))
     }
 }
 

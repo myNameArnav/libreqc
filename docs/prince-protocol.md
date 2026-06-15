@@ -88,6 +88,29 @@ The UI values and response agree on:
 
 Confidence: Verified.
 
+### EQ Writes
+
+The Bose packet constructor and hardware acceptance agree on:
+
+```text
+SETGET [1.7] payload=[signed target value, range ID]
+```
+
+Range IDs are Bass `0`, Mid `1`, and Treble `2`. The target is an absolute
+signed value, not a delta. The device returns the full 12-byte EQ status, and
+a subsequent `GET [1.7]` independently confirms the mutation.
+
+Accepted Bass step and restoration:
+
+```text
+Bass +3: 01 07 02 02 03 00
+Bass +2: 01 07 02 02 02 00
+```
+
+The acceptance run started at Bass `+2`, Mid `+4`, Treble `0`, changed Bass
+to `+3`, and restored Bass to `+2`. The identifier-free exchange is retained
+in `captures/rfcomm-eq-bass-step-2026-06-15.txt`.
+
 ### Shortcut `[1.9]`
 
 Observed payload:

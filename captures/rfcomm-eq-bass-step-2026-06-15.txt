@@ -1,0 +1,22 @@
+LibreQC EQ write acceptance
+Product: Bose QuietComfort Headphones (prince)
+Firmware: 1.0.6-80+f5f219b
+Transport: Bluetooth Classic RFCOMM SPP
+
+Initial EQ:
+Bass +2, Mid +4, Treble 0
+
+Bass +3:
+tx SETGET [1.7] 010702020300
+rx STATUS [1.7] 0107030cf60a0300f60a0401f60a0002
+tx GET [1.7]    01070100
+rx STATUS [1.7] 0107030cf60a0300f60a0401f60a0002
+
+Restore Bass +2:
+tx SETGET [1.7] 010702020200
+rx STATUS [1.7] 0107030cf60a0200f60a0401f60a0002
+tx GET [1.7]    01070100
+rx STATUS [1.7] 0107030cf60a0200f60a0401f60a0002
+
+Final EQ:
+Bass +2, Mid +4, Treble 0
