@@ -232,9 +232,15 @@ mode state. Snapshot it first and restore it at the end.
 
 ## Immediate Work Queue
 
+Completed:
+
 1. Extract codec and add fixture tests.
 2. Add the Stage 2 read-only probes.
 3. Capture and document the new responses.
 4. Implement the typed snapshot.
 5. Build the read-only Compose UI.
-6. Add writes in the Stage 5 order.
+
+Next:
+
+1. Capture and validate each Stage 5 write before enabling it.
+2. Add writes one family at a time in the documented order.

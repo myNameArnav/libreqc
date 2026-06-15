@@ -1,6 +1,7 @@
 # LibreQC
 
-Read-only Bose BMAP protocol probe for Android.
+Read-only Bose QuietComfort control app and BMAP protocol implementation for
+Android.
 
 Documentation:
 
@@ -24,11 +25,20 @@ The probe:
 
 `bmap-codec` is a pure Kotlin/JVM module containing packet encoding,
 incremental stream decoding, error decoding, correlation, and diagnostics.
-Its tests use frames from the redacted RFCOMM captures:
+
+`prince-profile` is a pure Kotlin/JVM module containing typed parsers for EQ,
+Shortcut, multipoint, modes, and remembered sources. It assembles independent
+feature results into a capability-aware `DeviceSnapshot`.
+
+The Android app presents a read-only Compose overview with Modes, Source, EQ,
+Shortcut, and Diagnostics screens. Its refresh path still sends only the fixed
+GET allowlist.
+
+Tests use frames from the redacted RFCOMM capture:
 
 ```sh
-./gradlew :bmap-codec:test
-./gradlew :app:assembleDebug
+./gradlew :bmap-codec:test :prince-profile:test \
+  :app:testDebugUnitTest :app:assembleDebug
 ```
 
 An explicit device can be selected with the `mac` activity extra. The Stage 2

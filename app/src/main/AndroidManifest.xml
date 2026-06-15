@@ -4,7 +4,7 @@
 
     <application
         android:allowBackup="false"
-        android:label="LibreQC Probe"
+        android:label="LibreQC"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
