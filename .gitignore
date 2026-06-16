@@ -4,3 +4,4 @@ app/build/
 local.properties
 captures/*
 !captures/rfcomm-stage2-read-only-2026-06-14.txt
+!captures/rfcomm-shortcut-battery-restore-2026-06-16.txt

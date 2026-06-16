@@ -141,6 +141,36 @@ response.
 
 Confidence: Verified payload, Recovered enum meanings.
 
+### Shortcut Writes
+
+The Bose packet constructor and hardware acceptance agree on:
+
+```text
+SETGET [1.9] payload=[button ID, event type, action]
+```
+
+For `prince`, the generic Shortcut button uses button ID `0x80` and long-press
+event type `9`. Hardware-accepted actions:
+
+| Action | Value |
+| --- | --- |
+| Battery Level | `3` |
+| Disabled | `14` |
+| Spotify Go Mode | `16` |
+
+Accepted Battery Level mutation and Spotify restoration:
+
+```text
+Battery Level: 01 09 02 03 80 09 03
+Spotify:       01 09 02 03 80 09 10
+```
+
+The device returns the full 11-byte shortcut status, and a subsequent
+`GET [1.9]` independently confirms the mutation. The acceptance run started at
+Spotify, changed to Battery Level, and restored to Spotify. The identifier-free
+exchange is retained in
+`captures/rfcomm-shortcut-battery-restore-2026-06-16.txt`.
+
 ### Multipoint `[1.10]`
 
 Observed payload `07`. The recovered parser defines:

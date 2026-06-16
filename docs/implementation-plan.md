@@ -161,8 +161,8 @@ reads all supported state without changing the headset.
 Implement one write family at a time:
 
 1. Mode selection, already verified.
-2. EQ Bass/Mid/Treble using SETGET and read-back.
-3. Shortcut enable/assignment using SETGET and read-back.
+2. EQ Bass/Mid/Treble using SETGET and read-back, already verified.
+3. Shortcut enable/assignment using SETGET and read-back, already verified.
 4. Multipoint toggle, with a disconnection warning.
 5. Source connect/disconnect.
 
@@ -242,7 +242,7 @@ Completed:
 
 Next:
 
-1. Capture and validate the EQ write before enabling it.
+1. Multipoint toggle, with a disconnection warning.
 2. Add later writes one family at a time in the documented order.
 
 Mode selection was hardware-accepted on 2026-06-15:
@@ -252,3 +252,17 @@ Mode selection was hardware-accepted on 2026-06-15:
 - Restored Quiet with `1f 03 05 02 00 00`.
 - Verified GET `[31.3]` returned mode index `0`.
 - The Compose overview reconciled to each read-back value.
+
+EQ adjustment was hardware-accepted on 2026-06-15:
+
+- Changed Bass from `+2` to `+3` with `01 07 02 02 03 00`.
+- Verified GET `[1.7]` returned Bass `+3`.
+- Restored Bass to `+2` with `01 07 02 02 02 00`.
+- Verified GET `[1.7]` returned Bass `+2`.
+
+Shortcut assignment was hardware-accepted on 2026-06-16:
+
+- Changed Shortcut from Spotify to Battery Level with `01 09 02 03 80 09 03`.
+- Verified GET `[1.9]` returned action `3`.
+- Restored Shortcut to Spotify with `01 09 02 03 80 09 10`.
+- Verified GET `[1.9]` returned action `16`.

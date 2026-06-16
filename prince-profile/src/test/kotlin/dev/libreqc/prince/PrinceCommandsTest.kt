@@ -56,6 +56,35 @@ class PrinceCommandsTest {
         }
     }
 
+    @Test
+    fun `encodes captured shortcut set-get commands`() {
+        assertContentEquals(
+            hex("01090203800903"),
+            PrinceCommands.setShortcut(ShortcutAction.BatteryLevel),
+        )
+        assertContentEquals(
+            hex("0109020380090e"),
+            PrinceCommands.setShortcut(ShortcutAction.Disabled),
+        )
+        assertContentEquals(
+            hex("01090203800910"),
+            PrinceCommands.setShortcut(ShortcutAction.Spotify),
+        )
+    }
+
+    @Test
+    fun `rejects unsupported shortcut actions and identifiers outside one byte`() {
+        assertFailsWith<IllegalArgumentException> {
+            PrinceCommands.setShortcut(ShortcutAction.Unknown(7))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            PrinceCommands.setShortcut(ShortcutAction.BatteryLevel, buttonId = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            PrinceCommands.setShortcut(ShortcutAction.BatteryLevel, eventType = 256)
+        }
+    }
+
     private fun hex(value: String): ByteArray =
         value.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 }

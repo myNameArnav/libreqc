@@ -53,6 +53,7 @@ import dev.libreqc.prince.ParseResult
 import dev.libreqc.prince.PrinceCommands
 import dev.libreqc.prince.RememberedSource
 import dev.libreqc.prince.ShortcutAction
+import dev.libreqc.prince.ShortcutParser
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
@@ -81,6 +82,7 @@ class MainActivity : ComponentActivity() {
                     onSelectPage = { state = state.copy(page = it) },
                     onSelectMode = ::startModeSelection,
                     onSetEq = ::startEqSelection,
+                    onSetShortcut = ::startShortcutSelection,
                 )
             }
         }
@@ -144,6 +146,61 @@ class MainActivity : ComponentActivity() {
             },
             "libreqc-eq-selection",
         ).start()
+    }
+
+    private fun startShortcutSelection(action: ShortcutAction) {
+        if (state.running) return
+        state = state.copy(status = "Changing shortcut...", running = true)
+        Thread(
+            {
+                try {
+                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val device = adapter?.let { selectDevice(it.bondedDevices) }
+                        ?: error("No bonded Bose BMAP device found")
+                    setShortcut(device, action)
+                    onMain {
+                        state = state.copy(status = "Shortcut changed", running = false)
+                        startProbe()
+                    }
+                } catch (error: Throwable) {
+                    line("shortcut change failed %s: %s", error.javaClass.simpleName, error.message)
+                    updateStatus("Shortcut change failed: ${error.message}", running = false)
+                }
+            },
+            "libreqc-shortcut-selection",
+        ).start()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setShortcut(device: BluetoothDevice, action: ShortcutAction) {
+        device.createRfcommSocketToServiceRecord(SPP_UUID).use { socket ->
+            socket.connect()
+            val input = socket.inputStream
+            val output = socket.outputStream
+            val runner = ReadProbeRunner(ProbeLogListener())
+            runner.drain(input, 300)
+
+            val command = PrinceCommands.setShortcut(action)
+            line("tx shortcut set SETGET [1.9] %s", BmapDiagnostics.hex(command))
+            output.write(command)
+            output.flush()
+            runner.drain(input, 300)
+
+            val readBack = exchange(
+                runner,
+                input,
+                output,
+                ReadProbe("settings.shortcut", BmapAddress(1, 9)),
+            )
+            val parsed = readBack.response()?.let { ShortcutParser.parse(it.payload) }
+            val shortcut = (parsed as? ParseResult.Success)?.value
+                ?: error("Shortcut read-back was unavailable or malformed")
+            check(shortcut.configuredAction == action) {
+                "Shortcut read-back mismatch: expected ${actionName(action)}, " +
+                    "got ${actionName(shortcut.configuredAction)}"
+            }
+            line("shortcut change verified action=%s", actionName(action))
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -424,6 +481,7 @@ private fun LibreQcApp(
     onSelectPage: (AppPage) -> Unit,
     onSelectMode: (Int) -> Unit,
     onSetEq: (EqBand, Int) -> Unit,
+    onSetShortcut: (ShortcutAction) -> Unit,
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         when (state.page) {
@@ -438,7 +496,7 @@ private fun LibreQcApp(
                 EqContent(state.snapshot?.eq, state.running, onSetEq)
             }
             AppPage.Shortcut -> FeatureScreen("Shortcut", onSelectPage) {
-                ShortcutContent(state.snapshot?.shortcut)
+                ShortcutContent(state.snapshot?.shortcut, state.running, onSetShortcut)
             }
             AppPage.Diagnostics -> DiagnosticsScreen(state, onSelectPage)
         }
@@ -679,7 +737,11 @@ private fun EqContent(
 }
 
 @Composable
-private fun ShortcutContent(shortcut: FeatureResult<dev.libreqc.prince.ShortcutState>?) {
+private fun ShortcutContent(
+    shortcut: FeatureResult<dev.libreqc.prince.ShortcutState>?,
+    running: Boolean,
+    onSetShortcut: (ShortcutAction) -> Unit,
+) {
     val available = (shortcut as? FeatureResult.Available)?.value
     if (available == null) {
         StatusText(featureStatus(shortcut))
@@ -689,7 +751,22 @@ private fun ShortcutContent(shortcut: FeatureResult<dev.libreqc.prince.ShortcutS
     ValueRow("Assignment", actionName(available.configuredAction))
     HorizontalDivider(Modifier.padding(vertical = 8.dp))
     Text("Available assignments", style = MaterialTheme.typography.titleMedium)
-    available.supportedActions.forEach { Text(actionName(it)) }
+    available.supportedActions.forEach { action ->
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(actionName(action), modifier = Modifier.weight(1f))
+            Button(
+                onClick = { onSetShortcut(action) },
+                enabled = !running &&
+                    action !is ShortcutAction.Unknown &&
+                    action != available.configuredAction,
+            ) {
+                Text(if (action == available.configuredAction) "Current" else "Set")
+            }
+        }
+    }
 }
 
 @Composable

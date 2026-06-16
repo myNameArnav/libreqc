@@ -1,0 +1,36 @@
+# LibreQC Shortcut SETGET acceptance
+#
+# Date: 2026-06-16
+# Device: Bose QuietComfort Headphones (`prince`)
+# Firmware: 1.0.6-80+f5f219b
+# Transport: Bluetooth Classic RFCOMM SPP
+# Privacy: identifier-free excerpt. Device names, addresses, and source-list
+# payloads are intentionally omitted.
+#
+# Procedure:
+# 1. Force-stopped Bose Music before the run.
+# 2. Initial shortcut read showed Spotify Go Mode.
+# 3. Changed Shortcut long-press action to Battery Level.
+# 4. Read back `[1.9]` through LibreQC and verified action 3.
+# 5. Restored Shortcut long-press action to Spotify Go Mode.
+# 6. Read back `[1.9]` through LibreQC and verified action 16.
+
+06-16 20:04:10.974 I LibreQCProbe: tx shortcut set SETGET [1.9] 01090203800903
+06-16 20:04:11.101 I LibreQCProbe: rx chunk 0109030b8009030001400800000080
+06-16 20:04:11.105 I LibreQCProbe: frame [1.9] STATUS payload=8009030001400800000080 correlation=unsolicited text=.....@.....
+06-16 20:04:11.290 I LibreQCProbe: probe start name=settings.shortcut address=[1.9]
+06-16 20:04:11.293 I LibreQCProbe: tx settings.shortcut              01090100
+06-16 20:04:11.358 I LibreQCProbe: rx chunk 0109030b8009030001400800000080
+06-16 20:04:11.362 I LibreQCProbe: frame [1.9] STATUS payload=8009030001400800000080 correlation=related text=.....@.....
+06-16 20:04:11.362 I LibreQCProbe: probe result name=settings.shortcut outcome=SUPPORTED elapsed_ms=68 unrelated=0
+06-16 20:04:11.364 I LibreQCProbe: shortcut change verified action=Hear battery level
+
+06-16 20:04:30.498 I LibreQCProbe: tx shortcut set SETGET [1.9] 01090203800910
+06-16 20:04:30.566 I LibreQCProbe: rx chunk 0109030b8009100001400800000080
+06-16 20:04:30.569 I LibreQCProbe: frame [1.9] STATUS payload=8009100001400800000080 correlation=unsolicited text=.....@.....
+06-16 20:04:30.825 I LibreQCProbe: probe start name=settings.shortcut address=[1.9]
+06-16 20:04:30.829 I LibreQCProbe: tx settings.shortcut              01090100
+06-16 20:04:30.896 I LibreQCProbe: rx chunk 0109030b8009100001400800000080
+06-16 20:04:30.900 I LibreQCProbe: frame [1.9] STATUS payload=8009100001400800000080 correlation=related text=.....@.....
+06-16 20:04:30.900 I LibreQCProbe: probe result name=settings.shortcut outcome=SUPPORTED elapsed_ms=70 unrelated=0
+06-16 20:04:30.902 I LibreQCProbe: shortcut change verified action=Spotify
