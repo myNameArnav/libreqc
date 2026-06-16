@@ -73,9 +73,19 @@
     ancToggle]`.
   - Prince hardware returned `FunctionNotSupported(4)` for `GET [31.10]`, so
     this is not the missing mode-edit path on current firmware.
+  - Hardware accepted no-op SETGET writes for `[31.4]`, `[31.5]`, `[31.7]`,
+    and `[31.8]` with verified read-back:
+    - `[31.4]` default `1f04020100` -> `00`.
+    - `[31.5]` persistence `1f05020101` -> `01`.
+    - `[31.7]` user indices `1f07020400010203` -> `00010203`.
+    - `[31.8]` favorites `1f0802020407` -> `0407`.
+  - Conclusion: AudioModes SETGET is not globally blocked; remaining blocker is
+    specific to `[31.6]` mode config edit/reset.
   - Evidence retained in
     `captures/rfcomm-mode-config-rejected-2026-06-16.txt`.
     `captures/rfcomm-mode-settings-config-noop-2026-06-16.txt` captures the
     unsupported `[31.10]` probe.
+    `captures/rfcomm-mode-admin-noops-2026-06-16.txt` captures accepted admin
+    no-op writes.
   - Do not expose user-facing mode edit UI yet. Need find missing precondition
     or alternate sequence for `[31.6]` writes.

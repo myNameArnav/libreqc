@@ -307,7 +307,18 @@ Stage 6 mode-config write recovery started on 2026-06-16:
   hardware returned `FunctionNotSupported(4)` for `GET [31.10]` on
   2026-06-16. This rules out `[31.10]` as the missing edit path on this
   firmware.
+- No-op SETGET writes were hardware-accepted for the other AudioModes admin
+  functions on 2026-06-16:
+  - `[31.4]` default mode: `1f04020100`, verified read-back `00`.
+  - `[31.5]` persistence: `1f05020101`, verified read-back `01`.
+  - `[31.7]` user indices: `1f07020400010203`, verified read-back
+    `00010203`.
+  - `[31.8]` favorites: `1f0802020407`, verified read-back `0407`.
+  This confirms AudioModes SETGET is generally accepted; the remaining Stage 6
+  blocker is specific to `[31.6]` mode config edit/reset semantics.
 - Evidence is retained in
   `captures/rfcomm-mode-config-rejected-2026-06-16.txt`.
   `captures/rfcomm-mode-settings-config-noop-2026-06-16.txt` captures the
   unsupported `[31.10]` probe.
+  `captures/rfcomm-mode-admin-noops-2026-06-16.txt` captures the accepted
+  `[31.4/.5/.7/.8]` no-op writes.

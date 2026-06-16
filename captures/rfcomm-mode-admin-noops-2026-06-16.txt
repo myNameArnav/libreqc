@@ -1,0 +1,66 @@
+--------- beginning of main
+06-16 21:21:37.340  4505  4535 I LibreQCProbe: probe start name=audio_modes.default.current address=[31.4]
+06-16 21:21:37.344  4505  4535 I LibreQCProbe: tx audio_modes.default.current    1f040100
+06-16 21:21:37.392  4505  4535 I LibreQCProbe: rx chunk 1f04030100
+06-16 21:21:37.394  4505  4535 I LibreQCProbe: frame [31.4] STATUS payload=00 correlation=related text=.
+06-16 21:21:37.397  4505  4535 I LibreQCProbe: probe result name=audio_modes.default.current outcome=SUPPORTED elapsed_ms=48 unrelated=0
+06-16 21:21:37.401  4505  4535 I LibreQCProbe: tx audio_modes.default SETGET 1f04020100
+06-16 21:21:37.403  4505  4535 I LibreQCProbe: probe start name=audio_modes.default.set address=[31.4]
+06-16 21:21:37.405  4505  4535 I LibreQCProbe: tx audio_modes.default.set        1f04020100
+06-16 21:21:37.451  4505  4535 I LibreQCProbe: rx chunk 1f04030100
+06-16 21:21:37.453  4505  4535 I LibreQCProbe: frame [31.4] STATUS payload=00 correlation=related text=.
+06-16 21:21:37.454  4505  4535 I LibreQCProbe: probe result name=audio_modes.default.set outcome=SUPPORTED elapsed_ms=47 unrelated=0
+06-16 21:21:37.455  4505  4535 I LibreQCProbe: probe start name=audio_modes.default.verify address=[31.4]
+06-16 21:21:37.458  4505  4535 I LibreQCProbe: tx audio_modes.default.verify     1f040100
+06-16 21:21:37.481  4505  4535 I LibreQCProbe: rx chunk 1f04030100
+06-16 21:21:37.484  4505  4535 I LibreQCProbe: frame [31.4] STATUS payload=00 correlation=related text=.
+06-16 21:21:37.485  4505  4535 I LibreQCProbe: probe result name=audio_modes.default.verify outcome=SUPPORTED elapsed_ms=26 unrelated=0
+06-16 21:21:37.486  4505  4535 I LibreQCProbe: probe start name=audio_modes.persistence.current address=[31.5]
+06-16 21:21:37.488  4505  4535 I LibreQCProbe: tx audio_modes.persistence.current 1f050100
+06-16 21:21:37.531  4505  4535 I LibreQCProbe: rx chunk 1f05030101
+06-16 21:21:37.533  4505  4535 I LibreQCProbe: frame [31.5] STATUS payload=01 correlation=related text=.
+06-16 21:21:37.534  4505  4535 I LibreQCProbe: probe result name=audio_modes.persistence.current outcome=SUPPORTED elapsed_ms=45 unrelated=0
+06-16 21:21:37.538  4505  4535 I LibreQCProbe: tx audio_modes.persistence SETGET 1f05020101
+06-16 21:21:37.539  4505  4535 I LibreQCProbe: probe start name=audio_modes.persistence.set address=[31.5]
+06-16 21:21:37.543  4505  4535 I LibreQCProbe: tx audio_modes.persistence.set    1f05020101
+06-16 21:21:37.589  4505  4535 I LibreQCProbe: rx chunk 1f05030101
+06-16 21:21:37.596  4505  4535 I LibreQCProbe: frame [31.5] STATUS payload=01 correlation=related text=.
+06-16 21:21:37.598  4505  4535 I LibreQCProbe: probe result name=audio_modes.persistence.set outcome=SUPPORTED elapsed_ms=53 unrelated=0
+06-16 21:21:37.599  4505  4535 I LibreQCProbe: probe start name=audio_modes.persistence.verify address=[31.5]
+06-16 21:21:37.609  4505  4535 I LibreQCProbe: tx audio_modes.persistence.verify 1f050100
+06-16 21:21:37.674  4505  4535 I LibreQCProbe: rx chunk 1f05030101
+06-16 21:21:37.675  4505  4535 I LibreQCProbe: frame [31.5] STATUS payload=01 correlation=related text=.
+06-16 21:21:37.676  4505  4535 I LibreQCProbe: probe result name=audio_modes.persistence.verify outcome=SUPPORTED elapsed_ms=65 unrelated=0
+06-16 21:21:37.677  4505  4535 I LibreQCProbe: probe start name=audio_modes.user_indices.current address=[31.7]
+06-16 21:21:37.681  4505  4535 I LibreQCProbe: tx audio_modes.user_indices.current 1f070100
+06-16 21:21:37.748  4505  4535 I LibreQCProbe: rx chunk 1f07030400010203
+06-16 21:21:37.752  4505  4535 I LibreQCProbe: frame [31.7] STATUS payload=00010203 correlation=related text=....
+06-16 21:21:37.753  4505  4535 I LibreQCProbe: probe result name=audio_modes.user_indices.current outcome=SUPPORTED elapsed_ms=70 unrelated=0
+06-16 21:21:37.764  4505  4535 I LibreQCProbe: tx audio_modes.user_indices SETGET 1f07020400010203
+06-16 21:21:37.765  4505  4535 I LibreQCProbe: probe start name=audio_modes.user_indices.set address=[31.7]
+06-16 21:21:37.777  4505  4535 I LibreQCProbe: tx audio_modes.user_indices.set   1f07020400010203
+06-16 21:21:37.851  4505  4535 I LibreQCProbe: rx chunk 1f07030400010203
+06-16 21:21:37.857  4505  4535 I LibreQCProbe: frame [31.7] STATUS payload=00010203 correlation=related text=....
+06-16 21:21:37.859  4505  4535 I LibreQCProbe: probe result name=audio_modes.user_indices.set outcome=SUPPORTED elapsed_ms=80 unrelated=0
+06-16 21:21:37.860  4505  4535 I LibreQCProbe: probe start name=audio_modes.user_indices.verify address=[31.7]
+06-16 21:21:37.862  4505  4535 I LibreQCProbe: tx audio_modes.user_indices.verify 1f070100
+06-16 21:21:37.931  4505  4535 I LibreQCProbe: rx chunk 1f07030400010203
+06-16 21:21:37.936  4505  4535 I LibreQCProbe: frame [31.7] STATUS payload=00010203 correlation=related text=....
+06-16 21:21:37.938  4505  4535 I LibreQCProbe: probe result name=audio_modes.user_indices.verify outcome=SUPPORTED elapsed_ms=73 unrelated=0
+06-16 21:21:37.939  4505  4535 I LibreQCProbe: probe start name=audio_modes.favorites.current address=[31.8]
+06-16 21:21:37.951  4505  4535 I LibreQCProbe: tx audio_modes.favorites.current  1f080100
+06-16 21:21:37.975  4505  4535 I LibreQCProbe: rx chunk 1f0803020407
+06-16 21:21:37.982  4505  4535 I LibreQCProbe: frame [31.8] STATUS payload=0407 correlation=related text=..
+06-16 21:21:37.983  4505  4535 I LibreQCProbe: probe result name=audio_modes.favorites.current outcome=SUPPORTED elapsed_ms=30 unrelated=0
+06-16 21:21:37.989  4505  4535 I LibreQCProbe: tx audio_modes.favorites SETGET 1f0802020407
+06-16 21:21:37.991  4505  4535 I LibreQCProbe: probe start name=audio_modes.favorites.set address=[31.8]
+06-16 21:21:37.995  4505  4535 I LibreQCProbe: tx audio_modes.favorites.set      1f0802020407
+06-16 21:21:38.020  4505  4535 I LibreQCProbe: rx chunk 1f0803020407
+06-16 21:21:38.022  4505  4535 I LibreQCProbe: frame [31.8] STATUS payload=0407 correlation=related text=..
+06-16 21:21:38.024  4505  4535 I LibreQCProbe: probe result name=audio_modes.favorites.set outcome=SUPPORTED elapsed_ms=27 unrelated=0
+06-16 21:21:38.024  4505  4535 I LibreQCProbe: probe start name=audio_modes.favorites.verify address=[31.8]
+06-16 21:21:38.033  4505  4535 I LibreQCProbe: tx audio_modes.favorites.verify   1f080100
+06-16 21:21:38.099  4505  4535 I LibreQCProbe: rx chunk 1f0803020407
+06-16 21:21:38.101  4505  4535 I LibreQCProbe: frame [31.8] STATUS payload=0407 correlation=related text=..
+06-16 21:21:38.102  4505  4535 I LibreQCProbe: probe result name=audio_modes.favorites.verify outcome=SUPPORTED elapsed_ms=67 unrelated=0
+06-16 21:21:38.102  4505  4535 I LibreQCProbe: mode admin no-op writes verified

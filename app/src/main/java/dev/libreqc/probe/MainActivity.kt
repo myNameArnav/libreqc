@@ -105,6 +105,8 @@ class MainActivity : ComponentActivity() {
                 startModeConfigWriteVerification(verifyModeConfigIndex)
             } else if (intent.getBooleanExtra(EXTRA_VERIFY_MODE_SETTINGS_CONFIG, false)) {
                 startModeSettingsConfigWriteVerification()
+            } else if (intent.getBooleanExtra(EXTRA_VERIFY_MODE_ADMIN_NOOPS, false)) {
+                startModeAdminNoopVerification()
             } else {
                 startProbe()
             }
@@ -179,6 +181,26 @@ class MainActivity : ComponentActivity() {
                 }
             },
             "libreqc-mode-settings-config-write-intent",
+        ).start()
+    }
+
+    private fun startModeAdminNoopVerification() {
+        if (state.running) return
+        state = state.copy(status = "Verifying mode admin no-op writes...", running = true)
+        Thread(
+            {
+                try {
+                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val device = adapter?.let { selectDevice(it.bondedDevices) }
+                        ?: error("No bonded Bose BMAP device found")
+                    verifyModeAdminNoops(device)
+                    updateStatus("Mode admin no-op writes verified", running = false)
+                } catch (error: Throwable) {
+                    line("mode admin no-op writes failed %s: %s", error.javaClass.simpleName, error.message)
+                    updateStatus("Mode admin no-op writes failed: ${error.message}", running = false)
+                }
+            },
+            "libreqc-mode-admin-noops-intent",
         ).start()
     }
 
@@ -597,6 +619,119 @@ class MainActivity : ComponentActivity() {
     }
 
     @SuppressLint("MissingPermission")
+    private fun verifyModeAdminNoops(device: BluetoothDevice) {
+        device.createRfcommSocketToServiceRecord(SPP_UUID).use { socket ->
+            socket.connect()
+            val input = socket.inputStream
+            val output = socket.outputStream
+            val runner = ReadProbeRunner(ProbeLogListener())
+            runner.drain(input, 300)
+
+            val defaultMode = readOneByte(runner, input, output, "audio_modes.default.current", BmapAddress(31, 4))
+            verifySetGetNoop(
+                runner = runner,
+                input = input,
+                output = output,
+                name = "audio_modes.default",
+                address = BmapAddress(31, 4),
+                command = PrinceCommands.setDefaultMode(defaultMode),
+                expected = byteArrayOf(defaultMode.toByte()),
+            )
+
+            val persistence = readOneByte(runner, input, output, "audio_modes.persistence.current", BmapAddress(31, 5))
+            verifySetGetNoop(
+                runner = runner,
+                input = input,
+                output = output,
+                name = "audio_modes.persistence",
+                address = BmapAddress(31, 5),
+                command = PrinceCommands.setModePersistence(persistence != 0),
+                expected = byteArrayOf(persistence.toByte()),
+            )
+
+            val indices = readPayload(runner, input, output, "audio_modes.user_indices.current", BmapAddress(31, 7))
+            verifySetGetNoop(
+                runner = runner,
+                input = input,
+                output = output,
+                name = "audio_modes.user_indices",
+                address = BmapAddress(31, 7),
+                command = PrinceCommands.setModeUserIndices(indices.map { it.toInt().and(0xff) }),
+                expected = indices,
+            )
+
+            val favorites = readPayload(runner, input, output, "audio_modes.favorites.current", BmapAddress(31, 8))
+            val favoriteIndices = decodeFavoriteIndices(favorites)
+            verifySetGetNoop(
+                runner = runner,
+                input = input,
+                output = output,
+                name = "audio_modes.favorites",
+                address = BmapAddress(31, 8),
+                command = PrinceCommands.setModeFavorites(favorites[0].toInt().and(0xff), favoriteIndices),
+                expected = favorites,
+            )
+            line("mode admin no-op writes verified")
+        }
+    }
+
+    private fun verifySetGetNoop(
+        runner: ReadProbeRunner,
+        input: InputStream,
+        output: OutputStream,
+        name: String,
+        address: BmapAddress,
+        command: ByteArray,
+        expected: ByteArray,
+    ) {
+        line("tx %s SETGET %s", name, BmapDiagnostics.hex(command))
+        val writeResult = exchange(
+            runner,
+            input,
+            output,
+            ReadProbe(
+                "$name.set",
+                address,
+                BmapOperator.SetGet,
+                command.copyOfRange(4, command.size),
+            ),
+        )
+        val written = writeResult.response()
+        check(written?.operator != BmapOperator.Error) { "$name write was rejected" }
+        check(written?.payload?.contentEquals(expected) == true) {
+            "$name write response mismatch: expected=${BmapDiagnostics.hex(expected)} " +
+                "got=${BmapDiagnostics.hex(written?.payload ?: ByteArray(0))}"
+        }
+
+        val readBack = readPayload(runner, input, output, "$name.verify", address)
+        check(readBack.contentEquals(expected)) {
+            "$name read-back mismatch: expected=${BmapDiagnostics.hex(expected)} got=${BmapDiagnostics.hex(readBack)}"
+        }
+    }
+
+    private fun readOneByte(
+        runner: ReadProbeRunner,
+        input: InputStream,
+        output: OutputStream,
+        name: String,
+        address: BmapAddress,
+    ): Int {
+        val payload = readPayload(runner, input, output, name, address)
+        check(payload.isNotEmpty()) { "$name payload was empty" }
+        return payload[0].toInt().and(0xff)
+    }
+
+    private fun readPayload(
+        runner: ReadProbeRunner,
+        input: InputStream,
+        output: OutputStream,
+        name: String,
+        address: BmapAddress,
+    ): ByteArray =
+        exchange(runner, input, output, ReadProbe(name, address)).response()?.payload
+            ?: error("$name snapshot was unavailable")
+
+    @SuppressLint("MissingPermission")
     private fun runProbe() {
         try {
             val adapter = BluetoothAdapter.getDefaultAdapter()
@@ -774,6 +909,7 @@ class MainActivity : ComponentActivity() {
         private const val TAG = "LibreQCProbe"
         private const val EXTRA_VERIFY_MODE_CONFIG_INDEX = "verifyModeConfigIndex"
         private const val EXTRA_VERIFY_MODE_SETTINGS_CONFIG = "verifyModeSettingsConfig"
+        private const val EXTRA_VERIFY_MODE_ADMIN_NOOPS = "verifyModeAdminNoops"
         private const val PROBE_TIMEOUT_MS = 3_000L
         private const val PROBE_DELAY_MS = 150L
         private val BMAP_UUID = UUID.fromString("00000000-deca-fade-deca-deafdecacaff")
@@ -801,6 +937,16 @@ private fun promptFromConfig(config: ModeConfig): AudioModePrompt {
 private fun spatialAudioModeFromValue(value: Int): SpatialAudioMode =
     SpatialAudioMode.entries.firstOrNull { it.value == value }
         ?: SpatialAudioMode.Disabled
+
+private fun decodeFavoriteIndices(payload: ByteArray): List<Int> {
+    check(payload.isNotEmpty()) { "Favorites payload was empty" }
+    val modeCount = payload[0].toInt().and(0xff)
+    return (0 until modeCount).filter { index ->
+        val byteIndex = payload.size - (index / 8) - 1
+        byteIndex in 1 until payload.size &&
+            (payload[byteIndex].toInt().and(0xff) and (1 shl (index % 8))) != 0
+    }
+}
 
 private data class ProbeUiState(
     val deviceName: String = "LibreQC",

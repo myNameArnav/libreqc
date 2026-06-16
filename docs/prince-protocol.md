@@ -49,11 +49,11 @@ Relevant operators:
 | `[31.0]` | AudioModes version | `1.0.0` |
 | `[31.2]` | AudioModes capabilities | `02 02 00 00 00 09` |
 | `[31.3]` | Current mode | one-byte mode index |
-| `[31.4]` | Default mode | one-byte mode index |
-| `[31.5]` | Remember My Mode | one-byte enabled value |
+| `[31.4]` | Default mode | one-byte mode index; no-op SETGET accepted |
+| `[31.5]` | Remember My Mode | one-byte enabled value; no-op SETGET accepted |
 | `[31.6]` | Mode config | GET with one-byte mode index; known SETGET forms rejected |
-| `[31.7]` | Mode indices | `00 01 02 03` |
-| `[31.8]` | Favorites | mode count plus bitset |
+| `[31.7]` | Mode indices | `00 01 02 03`; no-op SETGET accepted |
+| `[31.8]` | Favorites | mode count plus bitset; no-op SETGET accepted |
 | `[31.10]` | Mode settings config | `FuncNotSupp` on Prince firmware |
 
 `[1.6]`, `[31.10]`, and `[31.11]` returned `FuncNotSupp`.
