@@ -18,6 +18,7 @@
   - EQ Bass SETGET/read-back, accepted 2026-06-15.
   - Shortcut assignment SETGET/read-back, accepted 2026-06-16.
   - Multipoint toggle SETGET/read-back/restore, accepted 2026-06-16.
+  - Source disconnect/connect read-back/restore, accepted 2026-06-16.
 
 ## This Session Worklog
 
@@ -37,9 +38,21 @@
   `06`, restored with `010a020101`, verified read-back `07`.
 - Added redacted acceptance capture:
   `captures/rfcomm-multipoint-toggle-restore-2026-06-16.txt`.
+- Pulled/decompiled Bose Music APK with `jadx`; recovered source packets:
+  `START [4.2] payload=MAC` disconnect and `START [4.1] payload=00+MAC`
+  connect.
+- Added `PrinceCommands.connectSource` and `disconnectSource`.
+- Added Source screen connect/disconnect buttons for non-local remembered
+  sources.
+- Hardware-accepted source disconnect/connect using non-local source:
+  disconnect `04020506<source>` -> `[4.6]` mask `00`; connect
+  `0401050700<source>` -> PROCESSING then `[4.6]` mask `01`, later full
+  snapshot mask `07`.
+- Added redacted acceptance capture:
+  `captures/rfcomm-source-disconnect-connect-restore-2026-06-16.txt`.
 
 ## Next Work
 
-- Stage 5 next queue item: Source connect/disconnect.
-- Known source connect/disconnect packet shape still needs capture/recovery
-  before implementation.
+- Stage 5 low-risk writes are complete through source connect/disconnect.
+- Next implementation-plan stage: Stage 6 mode editing.
+- Mode editing needs proof of 47-byte mode-config write layout before UI.

@@ -265,6 +265,32 @@ remain unresolved.
 
 Confidence: Verified payloads, Recovered field layouts.
 
+### Source Connect/Disconnect Writes
+
+The recovered Bose packet constructors define:
+
+```text
+START [4.1] connect payload=[00, 6-byte source identifier]
+START [4.2] disconnect payload=[6-byte source identifier]
+```
+
+Hardware acceptance used a non-local remembered source:
+
+```text
+Disconnect: 04 02 05 06 <source>
+Connect:    04 01 05 07 00 <source>
+```
+
+The disconnect command was verified by reading `[4.6]` for the source and
+observing connected profile mask `00`. The connect command first returned
+`PROCESSING [4.1]` with the source identifier, then `[4.6]` read-back returned
+connected profile mask `01`; the following full snapshot returned `07` for
+that source. The Source screen moved from two connected sources to one, then
+back to two. The redacted exchange is retained in
+`captures/rfcomm-source-disconnect-connect-restore-2026-06-16.txt`.
+
+Confidence: Hardware accepted.
+
 ### Mode Startup `[31.4]` and `[31.5]`
 
 - `[31.4]` returned `00`, matching Quiet mode index `0` as the default mode.

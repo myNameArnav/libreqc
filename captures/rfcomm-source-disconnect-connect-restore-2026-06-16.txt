@@ -1,0 +1,44 @@
+# LibreQC Source Disconnect/Connect START acceptance
+#
+# Device: Bose QuietComfort Headphones (`prince`)
+# Firmware: 1.0.6-80+f5f219b
+# Date: 2026-06-16
+# App build: debug working tree after source connect/disconnect implementation
+# Redaction: source MAC bytes replaced with `<source>`. Source names omitted
+# except UI state summaries. Retained packet shapes and non-identifier result
+# bytes are enough to verify protocol behavior.
+#
+# Recovered from Bose Music 13.0.7 packet builders:
+# - Disconnect: START [4.2] payload=[6-byte source MAC]
+# - Connect: START [4.1] payload=[00, 6-byte source MAC]
+#
+# Initial state:
+# - Source screen showed 4 remembered, 2 connected, Multipoint on.
+#
+# Disconnect non-local source:
+06-16 20:39:56.737 I LibreQCProbe: tx source disconnect START [4.2] 04020506<source>
+06-16 20:39:58.758 I LibreQCProbe: probe start name=device_management.extended_info.verify address=[4.6]
+06-16 20:39:58.761 I LibreQCProbe: tx device_management.extended_info.verify 04060106<source>
+06-16 20:39:58.847 I LibreQCProbe: rx chunk 04060308<source>0700
+06-16 20:39:58.850 I LibreQCProbe: frame [4.6] STATUS payload=<source>0700 correlation=related text=.P..R...
+06-16 20:39:58.851 I LibreQCProbe: probe result name=device_management.extended_info.verify outcome=SUPPORTED elapsed_ms=88 unrelated=0
+06-16 20:39:58.853 I LibreQCProbe: source disconnect verified connected=false
+#
+# Post-disconnect snapshot:
+# - Source screen showed 4 remembered, 1 connected, Multipoint on.
+# - `[4.6]` for source returned connected profile mask `00`.
+#
+# Restore by connecting same source:
+06-16 20:40:21.085 I LibreQCProbe: tx source connect START [4.1] 0401050700<source>
+06-16 20:40:21.170 I LibreQCProbe: rx chunk 04010706<source>
+06-16 20:40:21.172 I LibreQCProbe: frame [4.1] PROCESSING payload=<source> correlation=unsolicited text=.P..R.
+06-16 20:40:23.090 I LibreQCProbe: probe start name=device_management.extended_info.verify address=[4.6]
+06-16 20:40:23.091 I LibreQCProbe: tx device_management.extended_info.verify 04060106<source>
+06-16 20:40:23.321 I LibreQCProbe: rx chunk 04060308<source>0701
+06-16 20:40:23.323 I LibreQCProbe: frame [4.6] STATUS payload=<source>0701 correlation=related text=.P..R...
+06-16 20:40:23.323 I LibreQCProbe: probe result name=device_management.extended_info.verify outcome=SUPPORTED elapsed_ms=230 unrelated=0
+06-16 20:40:23.324 I LibreQCProbe: source connect verified connected=true
+#
+# Final read-only snapshot:
+# - `[4.6]` for source returned connected profile mask `07`.
+# - Source screen showed 4 remembered, 2 connected, Multipoint on.

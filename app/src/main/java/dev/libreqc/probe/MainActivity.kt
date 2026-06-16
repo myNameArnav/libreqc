@@ -45,6 +45,8 @@ import dev.libreqc.bmap.BmapAddress
 import dev.libreqc.bmap.BmapFrame
 import dev.libreqc.prince.DeviceSnapshot
 import dev.libreqc.prince.DeviceSnapshotParser
+import dev.libreqc.prince.DeviceIdentifier
+import dev.libreqc.prince.DeviceProfilesParser
 import dev.libreqc.prince.EqBand
 import dev.libreqc.prince.EqParser
 import dev.libreqc.prince.FeatureResult
@@ -85,6 +87,7 @@ class MainActivity : ComponentActivity() {
                     onSetEq = ::startEqSelection,
                     onSetShortcut = ::startShortcutSelection,
                     onSetMultipoint = ::startMultipointSelection,
+                    onSetSourceConnection = ::startSourceConnection,
                 )
             }
         }
@@ -194,6 +197,105 @@ class MainActivity : ComponentActivity() {
             },
             "libreqc-multipoint-selection",
         ).start()
+    }
+
+    private fun startSourceConnection(identifier: DeviceIdentifier, connect: Boolean) {
+        if (state.running) return
+        state = state.copy(
+            status = if (connect) "Connecting source..." else "Disconnecting source...",
+            running = true,
+        )
+        Thread(
+            {
+                try {
+                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val device = adapter?.let { selectDevice(it.bondedDevices) }
+                        ?: error("No bonded Bose BMAP device found")
+                    setSourceConnection(device, identifier, connect)
+                    onMain {
+                        state = state.copy(
+                            status = if (connect) "Source connected" else "Source disconnected",
+                            running = false,
+                        )
+                        startProbe()
+                    }
+                } catch (error: Throwable) {
+                    val action = if (connect) "connect" else "disconnect"
+                    line("source %s failed %s: %s", action, error.javaClass.simpleName, error.message)
+                    updateStatus("Source $action failed: ${error.message}", running = false)
+                }
+            },
+            "libreqc-source-connection",
+        ).start()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setSourceConnection(
+        device: BluetoothDevice,
+        identifier: DeviceIdentifier,
+        connect: Boolean,
+    ) {
+        device.createRfcommSocketToServiceRecord(SPP_UUID).use { socket ->
+            socket.connect()
+            val input = socket.inputStream
+            val output = socket.outputStream
+            val runner = ReadProbeRunner(ProbeLogListener())
+            runner.drain(input, 300)
+
+            val command =
+                if (connect) PrinceCommands.connectSource(identifier)
+                else PrinceCommands.disconnectSource(identifier)
+            line(
+                "tx source %s START [%s] %s",
+                if (connect) "connect" else "disconnect",
+                if (connect) "4.1" else "4.2",
+                BmapDiagnostics.hex(command),
+            )
+            output.write(command)
+            output.flush()
+            runner.drain(input, 2_000)
+
+            val connected = verifySourceConnection(runner, input, output, identifier, connect)
+            line(
+                "source %s verified connected=%s",
+                if (connect) "connect" else "disconnect",
+                connected,
+            )
+        }
+    }
+
+    private fun verifySourceConnection(
+        runner: ReadProbeRunner,
+        input: InputStream,
+        output: OutputStream,
+        identifier: DeviceIdentifier,
+        expectedConnected: Boolean,
+    ): Boolean {
+        val attempts = if (expectedConnected) 12 else 4
+        var lastConnected: Boolean? = null
+        repeat(attempts) { attempt ->
+            if (attempt > 0) Thread.sleep(1_000)
+            val readBack = exchange(
+                runner,
+                input,
+                output,
+                ReadProbe(
+                    "device_management.extended_info.verify",
+                    BmapAddress(4, 6),
+                    identifier.bytes,
+                ),
+            )
+            val parsed = readBack.response()?.let { DeviceProfilesParser.parse(it.payload) }
+            val profiles = (parsed as? ParseResult.Success)?.value
+                ?: error("Source read-back was unavailable or malformed")
+            val connected = profiles.connected.isNotEmpty()
+            lastConnected = connected
+            if (connected == expectedConnected) return connected
+        }
+        error(
+            "Source read-back mismatch: expected connected=$expectedConnected, " +
+                "got connected=${lastConnected ?: "unknown"}",
+        )
     }
 
     @SuppressLint("MissingPermission")
@@ -539,6 +641,7 @@ private fun LibreQcApp(
     onSetEq: (EqBand, Int) -> Unit,
     onSetShortcut: (ShortcutAction) -> Unit,
     onSetMultipoint: (Boolean) -> Unit,
+    onSetSourceConnection: (DeviceIdentifier, Boolean) -> Unit,
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         when (state.page) {
@@ -552,6 +655,7 @@ private fun LibreQcApp(
                     multipoint = state.snapshot?.multipoint,
                     running = state.running,
                     onSetMultipoint = onSetMultipoint,
+                    onSetSourceConnection = onSetSourceConnection,
                 )
             }
             AppPage.Eq -> FeatureScreen("Equalizer", onSelectPage) {
@@ -725,6 +829,7 @@ private fun SourcesContent(
     multipoint: FeatureResult<dev.libreqc.prince.MultipointState>?,
     running: Boolean,
     onSetMultipoint: (Boolean) -> Unit,
+    onSetSourceConnection: (DeviceIdentifier, Boolean) -> Unit,
 ) {
     val multipointValue = (multipoint as? FeatureResult.Available)?.value
     ValueRow(
@@ -752,10 +857,28 @@ private fun SourcesContent(
     }
     available.forEach { source ->
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
-        ValueRow(
-            source.info?.name ?: "Remembered device",
-            if (source.info?.connected == true) "Connected" else "Not connected",
-        )
+        val connected = source.profiles?.connected.orEmpty().isNotEmpty()
+        val local = source.info?.localDevice == true
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(source.info?.name ?: "Remembered device")
+                Text(
+                    if (connected) "Connected" else "Not connected",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (!local) {
+                Button(
+                    onClick = { onSetSourceConnection(source.identifier, !connected) },
+                    enabled = !running,
+                ) {
+                    Text(if (connected) "Disconnect" else "Connect")
+                }
+            }
+        }
         val profiles = source.profiles?.connected.orEmpty()
         if (profiles.isNotEmpty()) {
             Text(

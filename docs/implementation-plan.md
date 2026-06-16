@@ -242,7 +242,7 @@ Completed:
 
 Next:
 
-1. Source connect/disconnect.
+1. Mode editing.
 2. Add later writes one family at a time in the documented order.
 
 Mode selection was hardware-accepted on 2026-06-15:
@@ -276,3 +276,14 @@ Multipoint toggle was hardware-accepted on 2026-06-16:
 - Verified GET `[1.10]` returned payload `07`.
 - The Source screen warns that turning off Multipoint may disconnect a second
   device and reconciled connected-source counts during the run.
+
+Source connect/disconnect was hardware-accepted on 2026-06-16:
+
+- Disconnected a non-local source with `04 02 05 06 <source>`.
+- Verified GET `[4.6]` returned connected profile mask `00`.
+- Reconnected the same source with `04 01 05 07 00 <source>`.
+- Observed PROCESSING `[4.1]` carrying the source identifier.
+- Verified GET `[4.6]` returned a non-zero connected profile mask, and the
+  following full snapshot returned mask `07`.
+- The Source screen reconciled from two connected sources to one and back to
+  two.

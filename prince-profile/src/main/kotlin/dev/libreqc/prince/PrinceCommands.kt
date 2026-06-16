@@ -9,6 +9,8 @@ object PrinceCommands {
     private val eqAddress = BmapAddress(1, 7)
     private val shortcutAddress = BmapAddress(1, 9)
     private val multipointAddress = BmapAddress(1, 10)
+    private val sourceConnectAddress = BmapAddress(4, 1)
+    private val sourceDisconnectAddress = BmapAddress(4, 2)
 
     fun selectMode(index: Int, voicePrompt: Boolean): ByteArray {
         require(index in 0..255) { "Mode index must fit in one byte" }
@@ -57,4 +59,13 @@ object PrinceCommands {
             BmapOperator.SetGet,
             byteArrayOf(if (enabled) 1 else 0),
         )
+
+    fun connectSource(identifier: DeviceIdentifier): ByteArray =
+        BmapPackets.start(
+            sourceConnectAddress,
+            byteArrayOf(0, *identifier.bytes),
+        )
+
+    fun disconnectSource(identifier: DeviceIdentifier): ByteArray =
+        BmapPackets.start(sourceDisconnectAddress, identifier.bytes)
 }

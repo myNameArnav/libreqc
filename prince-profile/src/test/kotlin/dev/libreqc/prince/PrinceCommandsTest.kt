@@ -97,6 +97,20 @@ class PrinceCommandsTest {
         )
     }
 
+    @Test
+    fun `encodes recovered source connect and disconnect commands`() {
+        val source = DeviceIdentifier(hex("112233445566"))
+
+        assertContentEquals(
+            hex("0401050700112233445566"),
+            PrinceCommands.connectSource(source),
+        )
+        assertContentEquals(
+            hex("04020506112233445566"),
+            PrinceCommands.disconnectSource(source),
+        )
+    }
+
     private fun hex(value: String): ByteArray =
         value.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 }
