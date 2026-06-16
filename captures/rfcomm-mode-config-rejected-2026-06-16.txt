@@ -1,0 +1,30 @@
+LibreQC hardware probe: mode config write rejection
+Date: 2026-06-16
+Device: Bose QuietComfort Headphones (`prince`), product ID 0x4075, firmware 1.0.6-80+f5f219b
+Transport: Bluetooth Classic SPP, Bose Music force-stopped
+
+Slot 3 current config:
+tx GET [31.6] payload=03
+rx STATUS [31.6]
+payload=0300000101000000000000000000000000000000000000000000000000000000000000000000000000090500000000
+
+Recovered Bose generic SETGET shape, 37-byte payload:
+tx SETGET [31.6]
+packet=1f06022503000000000000000000000000000000000000000000000000000000000000000000000500
+rx ERROR [31.6] InvalidLength(1)
+
+GET-shaped 47-byte payload:
+tx SETGET [31.6]
+packet=1f06022f0300000101000000000000000000000000000000000000000000000000000000000000000000000000090500000000
+rx ERROR [31.6] InvalidLength(1)
+
+37-byte payload with SET operator:
+tx SET [31.6]
+packet=1f06002503000000000000000000000000000000000000000000000000000000000000000000000500
+rx: no BMAP response before timeout; socket then broke on follow-up GET.
+
+Follow-up GET before the next write attempt showed slot 3 unchanged:
+payload=0300000101000000000000000000000000000000000000000000000000000000000000000000000000090500000000
+
+Conclusion:
+Mode config write is not hardware-accepted yet on `prince`. Do not expose user-facing mode edit controls until the accepted write sequence is found.

@@ -31,10 +31,10 @@ class ModesParserTest {
         assertEquals("Aware", aware.name)
         assertEquals(10, aware.cncLevel)
         assertEquals("Commute", commute.name)
-        assertEquals(9, commute.cncLevel)
+        assertEquals(0, commute.cncLevel)
         assertEquals(3, emptySlot.index)
         assertEquals("", emptySlot.name)
-        assertEquals(9, emptySlot.cncLevel)
+        assertEquals(5, emptySlot.cncLevel)
         assertContentEquals(hex("0500000000"), emptySlot.trailingBytes.copyOfRange(4, 9))
     }
 

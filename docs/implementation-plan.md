@@ -180,8 +180,9 @@ Exit condition: each screen can safely mutate and reconcile its own state.
 
 ### Stage 6: Mode Editing
 
-- Prove the 47-byte mode-config write layout.
-- Resolve fixed prompt identifiers and name encoding.
+- Prove the mode-config write layout.
+- Resolve fixed prompt identifiers and name encoding. Prompt identifiers and
+  name encoding are recovered; accepted write sequence is not yet found.
 - Add/edit the two user slots only.
 - Implement favorites and mode ordering.
 - Implement persistence/default mode.
@@ -242,8 +243,10 @@ Completed:
 
 Next:
 
-1. Mode editing.
-2. Add later writes one family at a time in the documented order.
+1. Continue Stage 6 by finding the missing mode-config write sequence or
+   precondition. Known rejected candidates are documented below.
+2. Add mode editing UI only after `[31.6]` writes are hardware-accepted.
+3. Add later writes one family at a time in the documented order.
 
 Mode selection was hardware-accepted on 2026-06-15:
 
@@ -287,3 +290,16 @@ Source connect/disconnect was hardware-accepted on 2026-06-16:
   following full snapshot returned mask `07`.
 - The Source screen reconciled from two connected sources to one and back to
   two.
+
+Stage 6 mode-config write recovery started on 2026-06-16:
+
+- Corrected ModeConfig parsing: byte `41` is the mutability bitfield, byte
+  `42` is CNC, byte `43` is auto-CNC. Slot 3 CNC is `5`, not `9`.
+- Recovered prompt IDs and mode-ordering/default/favorites/persistence packet
+  builders from Bose Music.
+- Hardware rejected 37-byte `[31.6]` SETGET and 47-byte GET-shaped SETGET
+  with `InvalidLength(1)`.
+- A 37-byte `[31.6]` SET attempt timed out and the socket broke; follow-up
+  GET before retry showed slot 3 unchanged.
+- Evidence is retained in
+  `captures/rfcomm-mode-config-rejected-2026-06-16.txt`.

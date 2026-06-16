@@ -213,6 +213,65 @@ sources after restoration. The identifier-free exchange is retained in
 
 Confidence: Hardware accepted.
 
+### Audio Modes `[31.*]`
+
+Mode config GET `[31.6]` returns 47 bytes:
+
+```text
+[index, prompt byte 1, prompt byte 2,
+ user-configurable, user-configured, favorite,
+ 32-byte UTF-8 null-terminated name,
+ bytes 38..40 unknown,
+ mutability bitfield,
+ cnc level,
+ auto-CNC enabled,
+ spatial/wind/ANC trailing values when supported]
+```
+
+The recovered Bose parser maps payload byte `41` as the mutability bitfield,
+payload byte `42` as CNC level, and payload byte `43` as auto-CNC enabled.
+Earlier LibreQC parser work treated byte `41` as CNC for user modes; that was
+wrong. For the retained slot 3 payload ending in `09 05 00 00 00 00`, CNC is
+`5`, not `9`.
+
+Prompt IDs are fixed two-byte values. Known recovered prompts include:
+
+| Prompt | Bytes |
+| --- | --- |
+| None | `00 00` |
+| Quiet | `00 01` |
+| Aware | `00 02` |
+| Commute | `00 07` |
+| Run | `00 14` |
+| Cinema | `00 24` |
+
+Recovered Bose packet constructors:
+
+```text
+Default mode:       SETGET [31.4] payload=[mode index]
+Remember My Mode:   SETGET [31.5] payload=[01 enabled, 00 disabled]
+Mode config basic:  SETGET [31.6] payload=[index, prompt1, prompt2,
+                    32-byte name, cnc, autoCNC]
+Mode ordering:      SETGET [31.7] payload=[mode indices...]
+Favorites:          SETGET [31.8] payload=[mode count, favorite bitset...]
+```
+
+Favorites bitset packs bit `index % 8` into bytes counted from the end of the
+bitset. For four modes with favorites `0, 1, 2`, the payload is `04 07`.
+
+Hardware rejection found so far:
+
+```text
+37-byte mode config SETGET -> ERROR InvalidLength(1)
+47-byte GET-shaped SETGET  -> ERROR InvalidLength(1)
+37-byte mode config SET    -> timed out, then socket broke; follow-up GET unchanged
+```
+
+The rejected mode-config write attempts are retained in
+`captures/rfcomm-mode-config-rejected-2026-06-16.txt`. Do not expose
+user-facing mode edit controls until an accepted `[31.6]` write sequence is
+found.
+
 ### Device Management `[4.*]`
 
 - `[4.0]` returns ASCII version `1.1.0`.

@@ -17,9 +17,7 @@ object ModeConfigParser {
     private const val PAYLOAD_SIZE = 47
     private const val NAME_START = 6
     private const val NAME_END = 38
-    private const val USER_MODE_FLAG_OFFSET = 3
-    private const val USER_MODE_CNC_OFFSET = 41
-    private const val BOSE_MODE_CNC_OFFSET = 42
+    private const val CNC_OFFSET = 42
 
     fun parse(payload: ByteArray): ParseResult<ModeConfig> {
         if (payload.size != PAYLOAD_SIZE) {
@@ -34,13 +32,7 @@ object ModeConfigParser {
             ModeConfig(
                 index = payload[0].toInt() and 0xff,
                 name = String(nameBytes, 0, nameLength, StandardCharsets.UTF_8),
-                cncLevel = payload[
-                    if (payload[USER_MODE_FLAG_OFFSET].toInt() != 0) {
-                        USER_MODE_CNC_OFFSET
-                    } else {
-                        BOSE_MODE_CNC_OFFSET
-                    }
-                ].toInt(),
+                cncLevel = payload[CNC_OFFSET].toInt(),
                 headerBytes = payload.copyOfRange(1, NAME_START),
                 trailingBytes = payload.copyOfRange(NAME_END, PAYLOAD_SIZE),
             ),

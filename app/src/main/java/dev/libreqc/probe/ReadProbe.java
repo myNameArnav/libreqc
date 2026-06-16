@@ -11,21 +11,32 @@ import java.util.Objects;
 public final class ReadProbe {
     private final String name;
     private final BmapAddress address;
+    private final BmapOperator operator;
     private final byte[] payload;
     private final boolean acceptsResult;
 
     public ReadProbe(String name, BmapAddress address) {
-        this(name, address, new byte[0], false);
+        this(name, address, BmapOperator.Get, new byte[0], false);
     }
 
     public ReadProbe(String name, BmapAddress address, byte[] payload) {
-        this(name, address, payload, false);
+        this(name, address, BmapOperator.Get, payload, false);
+    }
+
+    public ReadProbe(String name, BmapAddress address, BmapOperator operator, byte[] payload) {
+        this(name, address, operator, payload, false);
     }
 
     public ReadProbe(
             String name, BmapAddress address, byte[] payload, boolean acceptsResult) {
+        this(name, address, BmapOperator.Get, payload, acceptsResult);
+    }
+
+    public ReadProbe(
+            String name, BmapAddress address, BmapOperator operator, byte[] payload, boolean acceptsResult) {
         this.name = Objects.requireNonNull(name);
         this.address = Objects.requireNonNull(address);
+        this.operator = Objects.requireNonNull(operator);
         this.payload = Arrays.copyOf(payload, payload.length);
         this.acceptsResult = acceptsResult;
     }
@@ -43,7 +54,7 @@ public final class ReadProbe {
     }
 
     public byte[] packet() {
-        return BmapPackets.get(address, payload);
+        return BmapPackets.encode(address, operator, payload);
     }
 
     public boolean accepts(BmapFrame frame) {

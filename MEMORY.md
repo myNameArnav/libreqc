@@ -55,4 +55,20 @@
 
 - Stage 5 low-risk writes are complete through source connect/disconnect.
 - Next implementation-plan stage: Stage 6 mode editing.
-- Mode editing needs proof of 47-byte mode-config write layout before UI.
+- Mode editing recovery started:
+  - Decompiled Bose packet builders for mode config, favorites, user indices,
+    default mode, and persistence.
+  - Recovered prompt IDs: `None=00 00`, `Quiet=00 01`, `Aware=00 02`,
+    `Commute=00 07`, `Run=00 14`, `Cinema=00 24`, plus full enum in code.
+  - Corrected ModeConfig parser: byte `41` is mutability flags, byte `42` is
+    CNC, byte `43` is auto-CNC. Slot 3 CNC is `5`, not `9`.
+  - Added command builders/tests for 47-byte envelope preservation, Bose
+    generic 37-byte config, favorites `[31.8]`, user indices `[31.7]`,
+    default mode `[31.4]`, and persistence `[31.5]`.
+  - Hardware rejected 37-byte SETGET and 47-byte SETGET on `[31.6]` with
+    `InvalidLength(1)`. 37-byte SET timed out and broke the socket; slot 3
+    was unchanged before retry.
+  - Evidence retained in
+    `captures/rfcomm-mode-config-rejected-2026-06-16.txt`.
+  - Do not expose user-facing mode edit UI yet. Need find missing precondition
+    or alternate sequence for `[31.6]` writes.
