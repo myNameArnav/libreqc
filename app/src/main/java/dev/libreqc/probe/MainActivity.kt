@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.os.Bundle
 import android.os.ParcelUuid
@@ -44,12 +45,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.TouchApp
@@ -156,13 +157,16 @@ class MainActivity : ComponentActivity() {
         Thread(::runProbe, "libreqc-probe").start()
     }
 
+    private fun bluetoothAdapter(): BluetoothAdapter? =
+        getSystemService(BluetoothManager::class.java)?.adapter
+
     private fun startModeSelection(index: Int) {
         if (state.running) return
         state = state.copy(status = "Verifying mode...", running = true, pendingField = UiField.Modes)
         Thread(
             {
                 try {
-                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val adapter = bluetoothAdapter()
                     val device = adapter?.let { selectDevice(it.bondedDevices) }
                         ?: error("No bonded Bose BMAP device found")
                     val current = selectMode(device, index)
@@ -186,7 +190,7 @@ class MainActivity : ComponentActivity() {
         Thread(
             {
                 try {
-                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val adapter = bluetoothAdapter()
                     val device = adapter?.let { selectDevice(it.bondedDevices) }
                         ?: error("No bonded Bose BMAP device found")
                     verifyModeConfigWrite(device, index)
@@ -206,7 +210,7 @@ class MainActivity : ComponentActivity() {
         Thread(
             {
                 try {
-                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val adapter = bluetoothAdapter()
                     val device = adapter?.let { selectDevice(it.bondedDevices) }
                         ?: error("No bonded Bose BMAP device found")
                     verifyModeSettingsConfigWrite(device)
@@ -226,7 +230,7 @@ class MainActivity : ComponentActivity() {
         Thread(
             {
                 try {
-                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val adapter = bluetoothAdapter()
                     val device = adapter?.let { selectDevice(it.bondedDevices) }
                         ?: error("No bonded Bose BMAP device found")
                     verifyModeAdminNoops(device)
@@ -246,7 +250,7 @@ class MainActivity : ComponentActivity() {
         Thread(
             {
                 try {
-                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val adapter = bluetoothAdapter()
                     val device = adapter?.let { selectDevice(it.bondedDevices) }
                         ?: error("No bonded Bose BMAP device found")
                     val eq = setEq(device, band, target)
@@ -268,7 +272,7 @@ class MainActivity : ComponentActivity() {
         Thread(
             {
                 try {
-                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val adapter = bluetoothAdapter()
                     val device = adapter?.let { selectDevice(it.bondedDevices) }
                         ?: error("No bonded Bose BMAP device found")
                     val shortcut = setShortcut(device, action)
@@ -292,7 +296,7 @@ class MainActivity : ComponentActivity() {
         Thread(
             {
                 try {
-                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val adapter = bluetoothAdapter()
                     val device = adapter?.let { selectDevice(it.bondedDevices) }
                         ?: error("No bonded Bose BMAP device found")
                     val multipoint = setMultipoint(device, enabled)
@@ -320,7 +324,7 @@ class MainActivity : ComponentActivity() {
         Thread(
             {
                 try {
-                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val adapter = bluetoothAdapter()
                     val device = adapter?.let { selectDevice(it.bondedDevices) }
                         ?: error("No bonded Bose BMAP device found")
                     val profiles = setSourceConnection(device, identifier, connect)
@@ -775,7 +779,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("MissingPermission")
     private fun runProbe() {
         try {
-            val adapter = BluetoothAdapter.getDefaultAdapter()
+            val adapter = bluetoothAdapter()
             if (adapter == null || !adapter.isEnabled) {
                 updateStatus("Bluetooth is unavailable or disabled", running = false)
                 return
@@ -1287,7 +1291,7 @@ private fun FeatureCard(title: String, summary: String, icon: ImageVector, onCli
                 }
             }
             Icon(
-                Icons.Filled.KeyboardArrowRight,
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp),
@@ -1334,7 +1338,7 @@ private fun ScreenHeader(title: String, onBack: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack) {
-            Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
         Text(
             title,
