@@ -27,6 +27,7 @@ data class ModesSnapshot(
 )
 
 data class DeviceSnapshot(
+    val battery: FeatureResult<BatteryState>,
     val eq: FeatureResult<EqState>,
     val shortcut: FeatureResult<ShortcutState>,
     val multipoint: FeatureResult<MultipointState>,
@@ -36,6 +37,7 @@ data class DeviceSnapshot(
 )
 
 data class PrinceSnapshotFrames(
+    val battery: BmapFrame? = null,
     val eq: BmapFrame? = null,
     val shortcut: BmapFrame? = null,
     val multipoint: BmapFrame? = null,
@@ -54,6 +56,7 @@ data class PrinceSnapshotFrames(
 object DeviceSnapshotParser {
     fun parse(frames: PrinceSnapshotFrames): DeviceSnapshot =
         DeviceSnapshot(
+            battery = parseFrame(frames.battery, BatteryParser::parse),
             eq = parseFrame(frames.eq, EqParser::parse),
             shortcut = parseFrame(frames.shortcut, ShortcutParser::parse),
             multipoint = parseFrame(frames.multipoint, MultipointParser::parse),

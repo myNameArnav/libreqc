@@ -14,6 +14,7 @@ class DeviceSnapshotTest {
     fun `builds independent typed features from captured frames`() {
         val snapshot = DeviceSnapshotParser.parse(
             PrinceSnapshotFrames(
+                battery = status(2, 2, "55"),
                 eq = status(1, 7, "f60a0200f60a0401f60a0002"),
                 shortcut = status(1, 9, "8009100001400800000080"),
                 multipoint = status(1, 10, "07"),
@@ -46,6 +47,7 @@ class DeviceSnapshotTest {
             ),
         )
 
+        assertEquals(85, available(snapshot.battery).percent)
         assertEquals(2, available(snapshot.eq).ranges.first().current)
         assertEquals(ShortcutAction.Spotify, available(snapshot.shortcut).configuredAction)
         assertTrue(available(snapshot.multipoint).enabled)
@@ -70,6 +72,7 @@ class DeviceSnapshotTest {
         )
 
         assertIs<FeatureResult.Malformed>(snapshot.eq)
+        assertIs<FeatureResult.NotVerified>(snapshot.battery)
         assertTrue(available(snapshot.multipoint).enabled)
         assertIs<FeatureResult.NotVerified>(snapshot.shortcut)
         assertIs<FeatureResult.NotVerified>(snapshot.sources)

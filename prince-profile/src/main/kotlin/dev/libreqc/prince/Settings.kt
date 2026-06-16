@@ -88,4 +88,18 @@ object MultipointParser {
     }
 }
 
+data class BatteryState(val percent: Int)
+
+object BatteryParser {
+    fun parse(payload: ByteArray): ParseResult<BatteryState> {
+        if (payload.size != 1) {
+            return ParseResult.Malformed(
+                reason = "Battery payload must contain exactly 1 byte",
+                payload = payload,
+            )
+        }
+        return ParseResult.Success(BatteryState(payload.single().unsigned()))
+    }
+}
+
 private fun Byte.unsigned(): Int = toInt() and 0xff

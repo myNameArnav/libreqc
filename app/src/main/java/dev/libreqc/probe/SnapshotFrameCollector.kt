@@ -12,6 +12,7 @@ class SnapshotFrameCollector {
 
     fun frames(): PrinceSnapshotFrames =
         PrinceSnapshotFrames(
+            battery = frames["status.battery"],
             eq = frames["settings.eq"],
             shortcut = frames["settings.shortcut"],
             multipoint = frames["settings.multipoint"],

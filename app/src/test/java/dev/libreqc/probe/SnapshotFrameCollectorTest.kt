@@ -11,11 +11,13 @@ class SnapshotFrameCollectorTest {
     @Test
     fun mapsBaseAndDynamicProbeNamesToTypedFrameSlots() {
         val collector = SnapshotFrameCollector()
+        val battery = frame(2, 2)
         val eq = frame(1, 7)
         val deviceInfo = frame(4, 5)
         val profiles = frame(4, 6)
         val mode = frame(31, 6)
 
+        collector.accept("status.battery", battery)
         collector.accept("settings.eq", eq)
         collector.accept("device_management.info.0", deviceInfo)
         collector.accept("device_management.extended_info.0", profiles)
@@ -23,6 +25,7 @@ class SnapshotFrameCollectorTest {
         collector.accept("unrelated.name", frame(99, 99))
 
         val frames = collector.frames()
+        assertSame(battery, frames.battery)
         assertSame(eq, frames.eq)
         assertEquals(listOf(deviceInfo), frames.deviceInfos)
         assertEquals(listOf(profiles), frames.deviceProfiles)

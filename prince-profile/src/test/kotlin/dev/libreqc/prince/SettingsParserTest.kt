@@ -73,6 +73,20 @@ class SettingsParserTest {
         assertContentEquals(payload, malformed.payload)
     }
 
+    @Test
+    fun `parses one byte battery percent`() {
+        val result = BatteryParser.parse(hex("55"))
+
+        val battery = assertIs<ParseResult.Success<BatteryState>>(result).value
+        assertEquals(85, battery.percent)
+    }
+
+    @Test
+    fun `rejects malformed battery payloads`() {
+        assertIs<ParseResult.Malformed>(BatteryParser.parse(byteArrayOf()))
+        assertIs<ParseResult.Malformed>(BatteryParser.parse(hex("5500")))
+    }
+
     private fun hex(value: String): ByteArray =
         value.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 }
