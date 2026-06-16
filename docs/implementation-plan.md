@@ -242,7 +242,7 @@ Completed:
 
 Next:
 
-1. Multipoint toggle, with a disconnection warning.
+1. Source connect/disconnect.
 2. Add later writes one family at a time in the documented order.
 
 Mode selection was hardware-accepted on 2026-06-15:
@@ -266,3 +266,13 @@ Shortcut assignment was hardware-accepted on 2026-06-16:
 - Verified GET `[1.9]` returned action `3`.
 - Restored Shortcut to Spotify with `01 09 02 03 80 09 10`.
 - Verified GET `[1.9]` returned action `16`.
+
+Multipoint toggle was hardware-accepted on 2026-06-16:
+
+- Started with Multipoint enabled and GET `[1.10]` payload `07`.
+- Disabled Multipoint with `01 0a 02 01 00`.
+- Verified GET `[1.10]` returned payload `06`.
+- Restored Multipoint with `01 0a 02 01 01`.
+- Verified GET `[1.10]` returned payload `07`.
+- The Source screen warns that turning off Multipoint may disconnect a second
+  device and reconciled connected-source counts during the run.

@@ -8,6 +8,7 @@ object PrinceCommands {
     private val currentModeAddress = BmapAddress(31, 3)
     private val eqAddress = BmapAddress(1, 7)
     private val shortcutAddress = BmapAddress(1, 9)
+    private val multipointAddress = BmapAddress(1, 10)
 
     fun selectMode(index: Int, voicePrompt: Boolean): ByteArray {
         require(index in 0..255) { "Mode index must fit in one byte" }
@@ -49,4 +50,11 @@ object PrinceCommands {
             byteArrayOf(buttonId.toByte(), eventType.toByte(), actionId.toByte()),
         )
     }
+
+    fun setMultipoint(enabled: Boolean): ByteArray =
+        BmapPackets.encode(
+            multipointAddress,
+            BmapOperator.SetGet,
+            byteArrayOf(if (enabled) 1 else 0),
+        )
 }

@@ -183,6 +183,36 @@ Observed payload `07`. The recovered parser defines:
 
 Confidence: Verified payload, Recovered bit meanings.
 
+### Multipoint Writes
+
+The recovered write shape is:
+
+```text
+SETGET [1.10] payload=[enabled]
+```
+
+The current LibreQC implementation emits:
+
+```text
+Enable:  01 0a 02 01 01
+Disable: 01 0a 02 01 00
+```
+
+Accepted disable and restoration:
+
+```text
+Disable: 01 0a 02 01 00 -> STATUS payload `06`, read-back `06`
+Enable:  01 0a 02 01 01 -> STATUS payload `07`, read-back `07`
+```
+
+The acceptance run started with Multipoint enabled (`07`), disabled it to
+payload `06`, and restored enabled state to `07`. The app UI changed from
+two connected sources to one after disabling and returned to two connected
+sources after restoration. The identifier-free exchange is retained in
+`captures/rfcomm-multipoint-toggle-restore-2026-06-16.txt`.
+
+Confidence: Hardware accepted.
+
 ### Device Management `[4.*]`
 
 - `[4.0]` returns ASCII version `1.1.0`.

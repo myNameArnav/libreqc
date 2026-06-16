@@ -49,6 +49,7 @@ import dev.libreqc.prince.EqBand
 import dev.libreqc.prince.EqParser
 import dev.libreqc.prince.FeatureResult
 import dev.libreqc.prince.ModesSnapshot
+import dev.libreqc.prince.MultipointParser
 import dev.libreqc.prince.ParseResult
 import dev.libreqc.prince.PrinceCommands
 import dev.libreqc.prince.RememberedSource
@@ -83,6 +84,7 @@ class MainActivity : ComponentActivity() {
                     onSelectMode = ::startModeSelection,
                     onSetEq = ::startEqSelection,
                     onSetShortcut = ::startShortcutSelection,
+                    onSetMultipoint = ::startMultipointSelection,
                 )
             }
         }
@@ -169,6 +171,60 @@ class MainActivity : ComponentActivity() {
             },
             "libreqc-shortcut-selection",
         ).start()
+    }
+
+    private fun startMultipointSelection(enabled: Boolean) {
+        if (state.running) return
+        state = state.copy(status = "Changing multipoint...", running = true)
+        Thread(
+            {
+                try {
+                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val device = adapter?.let { selectDevice(it.bondedDevices) }
+                        ?: error("No bonded Bose BMAP device found")
+                    setMultipoint(device, enabled)
+                    onMain {
+                        state = state.copy(status = "Multipoint changed", running = false)
+                        startProbe()
+                    }
+                } catch (error: Throwable) {
+                    line("multipoint change failed %s: %s", error.javaClass.simpleName, error.message)
+                    updateStatus("Multipoint change failed: ${error.message}", running = false)
+                }
+            },
+            "libreqc-multipoint-selection",
+        ).start()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setMultipoint(device: BluetoothDevice, enabled: Boolean) {
+        device.createRfcommSocketToServiceRecord(SPP_UUID).use { socket ->
+            socket.connect()
+            val input = socket.inputStream
+            val output = socket.outputStream
+            val runner = ReadProbeRunner(ProbeLogListener())
+            runner.drain(input, 300)
+
+            val command = PrinceCommands.setMultipoint(enabled)
+            line("tx multipoint set SETGET [1.10] %s", BmapDiagnostics.hex(command))
+            output.write(command)
+            output.flush()
+            runner.drain(input, 300)
+
+            val readBack = exchange(
+                runner,
+                input,
+                output,
+                ReadProbe("settings.multipoint", BmapAddress(1, 10)),
+            )
+            val parsed = readBack.response()?.let { MultipointParser.parse(it.payload) }
+            val multipoint = (parsed as? ParseResult.Success)?.value
+                ?: error("Multipoint read-back was unavailable or malformed")
+            check(multipoint.enabled == enabled) {
+                "Multipoint read-back mismatch: expected ${onOff(enabled)}, got ${onOff(multipoint.enabled)}"
+            }
+            line("multipoint change verified enabled=%s", enabled)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -482,6 +538,7 @@ private fun LibreQcApp(
     onSelectMode: (Int) -> Unit,
     onSetEq: (EqBand, Int) -> Unit,
     onSetShortcut: (ShortcutAction) -> Unit,
+    onSetMultipoint: (Boolean) -> Unit,
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         when (state.page) {
@@ -490,7 +547,12 @@ private fun LibreQcApp(
                 ModesContent(state.snapshot?.modes, state.running, onSelectMode)
             }
             AppPage.Sources -> FeatureScreen("Source", onSelectPage) {
-                SourcesContent(state.snapshot?.sources, state.snapshot?.multipoint)
+                SourcesContent(
+                    sources = state.snapshot?.sources,
+                    multipoint = state.snapshot?.multipoint,
+                    running = state.running,
+                    onSetMultipoint = onSetMultipoint,
+                )
             }
             AppPage.Eq -> FeatureScreen("Equalizer", onSelectPage) {
                 EqContent(state.snapshot?.eq, state.running, onSetEq)
@@ -661,11 +723,28 @@ private fun ModesContent(
 private fun SourcesContent(
     sources: FeatureResult<List<RememberedSource>>?,
     multipoint: FeatureResult<dev.libreqc.prince.MultipointState>?,
+    running: Boolean,
+    onSetMultipoint: (Boolean) -> Unit,
 ) {
+    val multipointValue = (multipoint as? FeatureResult.Available)?.value
     ValueRow(
         "Multipoint",
-        featureText(multipoint) { if (it.enabled) "On" else "Off" },
+        featureText(multipoint) { onOff(it.enabled) },
     )
+    if (multipointValue != null) {
+        Text(
+            "Turning off multipoint may disconnect a second device.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Button(
+            onClick = { onSetMultipoint(!multipointValue.enabled) },
+            enabled = !running &&
+                multipointValue.supported &&
+                (!multipointValue.enabled || multipointValue.canDisable),
+        ) {
+            Text(if (multipointValue.enabled) "Turn off" else "Turn on")
+        }
+    }
     val available = (sources as? FeatureResult.Available)?.value
     if (available == null) {
         StatusText(featureStatus(sources))
@@ -869,6 +948,8 @@ private fun actionName(action: ShortcutAction): String =
     }
 
 private fun signed(value: Int): String = if (value > 0) "+$value" else value.toString()
+
+private fun onOff(value: Boolean): String = if (value) "On" else "Off"
 
 private fun featureStatus(result: FeatureResult<*>?): String =
     when (result) {

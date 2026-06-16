@@ -1,0 +1,42 @@
+# LibreQC Multipoint SETGET acceptance
+#
+# Device: Bose QuietComfort Headphones (`prince`)
+# Firmware: 1.0.6-80+f5f219b
+# Date: 2026-06-16
+# App build: debug working tree after `Add recovered multipoint toggle path`
+# Redaction: device addresses and source names omitted; retained BMAP bytes are
+# identifier-free for the multipoint exchange.
+#
+# Initial read-only snapshot:
+# - `GET [1.10]` returned payload `07`
+# - UI summary: 4 remembered, 2 connected, Multipoint on
+#
+# Disable multipoint:
+06-16 20:32:38.788 I LibreQCProbe: tx multipoint set SETGET [1.10] 010a020100
+06-16 20:32:38.830 I LibreQCProbe: rx chunk 010a030106
+06-16 20:32:38.832 I LibreQCProbe: frame [1.10] STATUS payload=06 correlation=unsolicited text=.
+06-16 20:32:39.097 I LibreQCProbe: probe start name=settings.multipoint address=[1.10]
+06-16 20:32:39.098 I LibreQCProbe: tx settings.multipoint            010a0100
+06-16 20:32:39.160 I LibreQCProbe: rx chunk 010a030106
+06-16 20:32:39.161 I LibreQCProbe: frame [1.10] STATUS payload=06 correlation=related text=.
+06-16 20:32:39.161 I LibreQCProbe: probe result name=settings.multipoint outcome=SUPPORTED elapsed_ms=63 unrelated=0
+06-16 20:32:39.162 I LibreQCProbe: multipoint change verified enabled=false
+#
+# Post-disable snapshot:
+# - `GET [1.10]` returned payload `06`
+# - UI summary: 4 remembered, 1 connected, Multipoint off
+#
+# Restore multipoint:
+06-16 20:33:15.825 I LibreQCProbe: tx multipoint set SETGET [1.10] 010a020101
+06-16 20:33:15.888 I LibreQCProbe: rx chunk 010a030107
+06-16 20:33:15.889 I LibreQCProbe: frame [1.10] STATUS payload=07 correlation=unsolicited text=.
+06-16 20:33:16.135 I LibreQCProbe: probe start name=settings.multipoint address=[1.10]
+06-16 20:33:16.136 I LibreQCProbe: tx settings.multipoint            010a0100
+06-16 20:33:16.259 I LibreQCProbe: rx chunk 010a030107
+06-16 20:33:16.260 I LibreQCProbe: frame [1.10] STATUS payload=07 correlation=related text=.
+06-16 20:33:16.261 I LibreQCProbe: probe result name=settings.multipoint outcome=SUPPORTED elapsed_ms=125 unrelated=0
+06-16 20:33:16.261 I LibreQCProbe: multipoint change verified enabled=true
+#
+# Final read-only snapshot:
+# - `GET [1.10]` returned payload `07`
+# - UI summary: 4 remembered, 2 connected, Multipoint on

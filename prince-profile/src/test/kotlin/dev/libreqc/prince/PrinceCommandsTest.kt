@@ -85,6 +85,18 @@ class PrinceCommandsTest {
         }
     }
 
+    @Test
+    fun `encodes recovered multipoint set-get commands`() {
+        assertContentEquals(
+            hex("010a020101"),
+            PrinceCommands.setMultipoint(enabled = true),
+        )
+        assertContentEquals(
+            hex("010a020100"),
+            PrinceCommands.setMultipoint(enabled = false),
+        )
+    }
+
     private fun hex(value: String): ByteArray =
         value.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 }
