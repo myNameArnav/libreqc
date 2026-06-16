@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -1056,6 +1057,8 @@ private val LibreQcColors = lightColorScheme(
     primaryContainer = Color(0xFFD9ECE4),
     onPrimaryContainer = Color(0xFF16372B),
     secondary = Color(0xFF59615B),
+    secondaryContainer = Color(0xFFE7EFE9),
+    onSecondaryContainer = Color(0xFF1C1F1D),
     background = Color.White,
     surface = Color.White,
     surfaceContainer = Color(0xFFF0F3EF),
@@ -1078,12 +1081,15 @@ private fun LibreQcApp(
     onSetSourceConnection: (DeviceIdentifier, Boolean) -> Unit,
 ) {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        if (state.page != AppPage.Overview) {
+            BackHandler { onSelectPage(AppPage.Overview) }
+        }
         when (state.page) {
             AppPage.Overview -> Overview(state, onRefresh, onSelectPage)
             AppPage.Modes -> FeatureScreen("Modes", onSelectPage) {
                 ModesContent(state.snapshot?.modes, state.isFieldPending(UiField.Modes), onSelectMode)
             }
-            AppPage.Sources -> FeatureScreen("Source", onSelectPage) {
+            AppPage.Sources -> FeatureScreen("Sources", onSelectPage) {
                 SourcesContent(
                     sources = state.snapshot?.sources,
                     multipoint = state.snapshot?.multipoint,
@@ -1262,16 +1268,26 @@ private fun FeatureScreen(
         ) {
             item {
                 Spacer(Modifier.height(12.dp))
-                Text(
-                    title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
                 TextButton(onClick = { onSelectPage(AppPage.Overview) }) {
                     Text("Back")
                 }
+                Text(
+                    title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
-            item { content() }
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        content()
+                    }
+                }
+            }
             item { Spacer(Modifier.height(18.dp)) }
         }
     }
@@ -1311,6 +1327,7 @@ private fun ModesContent(
                     onClick = { onSelectMode(it.index) },
                     enabled = !running && it.index != current,
                     shape = RoundedCornerShape(8.dp),
+                    colors = quietButtonColors(),
                 ) {
                     Text(if (it.index == current) "Current" else "Select")
                 }
@@ -1347,6 +1364,7 @@ private fun SourcesContent(
                 multipointValue.supported &&
                 (!multipointValue.enabled || multipointValue.canDisable),
             shape = RoundedCornerShape(8.dp),
+            colors = quietButtonColors(),
         ) {
             Text(if (multipointValue.enabled) "Turn off" else "Turn on")
         }
@@ -1376,6 +1394,7 @@ private fun SourcesContent(
                     onClick = { onSetSourceConnection(source.identifier, !connected) },
                     enabled = !pendingSources,
                     shape = RoundedCornerShape(8.dp),
+                    colors = quietButtonColors(),
                 ) {
                     Text(if (connected) "Disconnect" else "Connect")
                 }
@@ -1429,7 +1448,9 @@ private fun EqContent(
                     onClick = { onSetEq(band, it.current - 1) },
                     enabled = !pending && band !is EqBand.Unknown && it.current > it.minimum,
                     shape = RoundedCornerShape(8.dp),
-                    contentPadding = ButtonDefaults.ContentPadding,
+                    modifier = Modifier.size(width = 56.dp, height = 44.dp),
+                    contentPadding = ButtonDefaults.TextButtonContentPadding,
+                    colors = quietButtonColors(),
                 ) {
                     Text("-")
                 }
@@ -1437,7 +1458,9 @@ private fun EqContent(
                     onClick = { onSetEq(band, it.current + 1) },
                     enabled = !pending && band !is EqBand.Unknown && it.current < it.maximum,
                     shape = RoundedCornerShape(8.dp),
-                    contentPadding = ButtonDefaults.ContentPadding,
+                    modifier = Modifier.size(width = 56.dp, height = 44.dp),
+                    contentPadding = ButtonDefaults.TextButtonContentPadding,
+                    colors = quietButtonColors(),
                 ) {
                     Text("+")
                 }
@@ -1475,6 +1498,7 @@ private fun ShortcutContent(
                     action !is ShortcutAction.Unknown &&
                     action != available.configuredAction,
                 shape = RoundedCornerShape(8.dp),
+                colors = quietButtonColors(),
             ) {
                 Text(if (action == available.configuredAction) "Current" else "Set")
             }
@@ -1483,12 +1507,20 @@ private fun ShortcutContent(
 }
 
 @Composable
+private fun quietButtonColors() = ButtonDefaults.filledTonalButtonColors(
+    containerColor = MaterialTheme.colorScheme.primaryContainer,
+    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+)
+
+@Composable
 private fun ProtocolChip(label: String) {
     Text(
         label,
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 10.dp, vertical = 5.dp),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.bodySmall,
