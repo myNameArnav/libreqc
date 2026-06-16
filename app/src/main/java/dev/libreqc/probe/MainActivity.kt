@@ -35,19 +35,33 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Equalizer
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -1136,6 +1150,7 @@ private fun Overview(
                 FeatureCard(
                     title = "Modes",
                     summary = fieldSummary(state, UiField.Modes, modesSummary(state.snapshot?.modes)),
+                    icon = Icons.Filled.GraphicEq,
                     onClick = { onSelectPage(AppPage.Modes) },
                 )
             }
@@ -1143,6 +1158,7 @@ private fun Overview(
                 FeatureCard(
                     title = "Sources",
                     summary = fieldSummary(state, UiField.Sources, sourcesSummary(state.snapshot)),
+                    icon = Icons.Filled.Bluetooth,
                     onClick = { onSelectPage(AppPage.Sources) },
                 )
             }
@@ -1150,6 +1166,7 @@ private fun Overview(
                 FeatureCard(
                     title = "EQ",
                     summary = fieldSummary(state, UiField.Eq, eqSummary(state.snapshot?.eq)),
+                    icon = Icons.Filled.Equalizer,
                     onClick = { onSelectPage(AppPage.Eq) },
                 )
             }
@@ -1157,6 +1174,7 @@ private fun Overview(
                 FeatureCard(
                     title = "Shortcut",
                     summary = fieldSummary(state, UiField.Shortcut, shortcutSummary(state.snapshot?.shortcut)),
+                    icon = Icons.Filled.TouchApp,
                     onClick = { onSelectPage(AppPage.Shortcut) },
                 )
             }
@@ -1172,6 +1190,8 @@ private fun Overview(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     TextButton(onClick = { onSelectPage(AppPage.Diagnostics) }) {
+                        Icon(Icons.Filled.BugReport, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.size(6.dp))
                         Text("Debug")
                     }
                 }
@@ -1208,6 +1228,8 @@ private fun HeaderBlock(state: ProbeUiState, onRefresh: () -> Unit) {
                 enabled = !state.running,
                 shape = RoundedCornerShape(8.dp),
             ) {
+                Icon(Icons.Filled.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.size(8.dp))
                 Text(if (state.running) "Reading..." else "Refresh")
             }
         }
@@ -1236,7 +1258,7 @@ private fun StatusDot(connected: Boolean, running: Boolean) {
 }
 
 @Composable
-private fun FeatureCard(title: String, summary: String, onClick: () -> Unit) {
+private fun FeatureCard(title: String, summary: String, icon: ImageVector, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1247,10 +1269,29 @@ private fun FeatureCard(title: String, summary: String, onClick: () -> Unit) {
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Column(Modifier.padding(18.dp)) {
-            Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(4.dp))
-            Text(summary, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(18.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp).padding(top = 2.dp),
+                )
+                Column {
+                    Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(4.dp))
+                    Text(summary, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            Icon(
+                Icons.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp),
+            )
         }
     }
 }
@@ -1268,14 +1309,7 @@ private fun FeatureScreen(
         ) {
             item {
                 Spacer(Modifier.height(12.dp))
-                TextButton(onClick = { onSelectPage(AppPage.Overview) }) {
-                    Text("Back")
-                }
-                Text(
-                    title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                ScreenHeader(title = title, onBack = { onSelectPage(AppPage.Overview) })
             }
             item {
                 Surface(
@@ -1290,6 +1324,23 @@ private fun FeatureScreen(
             }
             item { Spacer(Modifier.height(18.dp)) }
         }
+    }
+}
+
+@Composable
+private fun ScreenHeader(title: String, onBack: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+        }
+        Text(
+            title,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold,
+        )
     }
 }
 
@@ -1534,14 +1585,7 @@ private fun DiagnosticsScreen(state: ProbeUiState, onSelectPage: (AppPage) -> Un
             modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
         ) {
             item {
-                TextButton(onClick = { onSelectPage(AppPage.Overview) }) {
-                    Text("Back")
-                }
-                Text(
-                    "Diagnostics",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                )
+                ScreenHeader(title = "Diagnostics", onBack = { onSelectPage(AppPage.Overview) })
                 Text(
                     "Raw protocol data may contain local device identifiers.",
                     color = MaterialTheme.colorScheme.error,
@@ -1586,8 +1630,8 @@ internal fun batterySummary(battery: FeatureResult<dev.libreqc.prince.BatterySta
     when (battery) {
         is FeatureResult.Available -> "Battery ${battery.value.percent.coerceIn(0, 100)}%"
         is FeatureResult.Unsupported -> "Battery unsupported"
-        is FeatureResult.Malformed -> "Battery unreadable"
-        FeatureResult.NotVerified, null -> "Battery not verified"
+        is FeatureResult.Malformed -> "Battery not available"
+        FeatureResult.NotVerified, null -> "Battery not read yet"
     }
 
 internal fun lastUpdatedText(lastUpdatedAt: Long?): String =
@@ -1670,8 +1714,8 @@ private fun featureStatus(result: FeatureResult<*>?): String =
     when (result) {
         is FeatureResult.Available -> "Available"
         is FeatureResult.Unsupported -> "Unsupported"
-        is FeatureResult.Malformed -> "Malformed response"
-        FeatureResult.NotVerified, null -> "Not yet verified"
+        is FeatureResult.Malformed -> "Could not read"
+        FeatureResult.NotVerified, null -> "Not read yet"
     }
 
 private fun <T> featureText(result: FeatureResult<T>?, value: (T) -> String): String =
