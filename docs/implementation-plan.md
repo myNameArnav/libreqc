@@ -301,5 +301,13 @@ Stage 6 mode-config write recovery started on 2026-06-16:
   with `InvalidLength(1)`.
 - A 37-byte `[31.6]` SET attempt timed out and the socket broke; follow-up
   GET before retry showed slot 3 unchanged.
+- Bose Music also has `AudioModesSettingsConfig` `[31.10]` for current CNC /
+  spatial / wind / ANC settings, encoded as
+  `[cncLevel, autoCnc, spatialAudio, windBlock, ancToggle]`, but Prince
+  hardware returned `FunctionNotSupported(4)` for `GET [31.10]` on
+  2026-06-16. This rules out `[31.10]` as the missing edit path on this
+  firmware.
 - Evidence is retained in
   `captures/rfcomm-mode-config-rejected-2026-06-16.txt`.
+  `captures/rfcomm-mode-settings-config-noop-2026-06-16.txt` captures the
+  unsupported `[31.10]` probe.

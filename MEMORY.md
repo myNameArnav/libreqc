@@ -68,7 +68,14 @@
   - Hardware rejected 37-byte SETGET and 47-byte SETGET on `[31.6]` with
     `InvalidLength(1)`. 37-byte SET timed out and broke the socket; slot 3
     was unchanged before retry.
+  - Recovered Bose `[31.10]` mode settings config command:
+    `SETGET [31.10] payload=[cncLevel, autoCnc, spatialAudio, windBlock,
+    ancToggle]`.
+  - Prince hardware returned `FunctionNotSupported(4)` for `GET [31.10]`, so
+    this is not the missing mode-edit path on current firmware.
   - Evidence retained in
     `captures/rfcomm-mode-config-rejected-2026-06-16.txt`.
+    `captures/rfcomm-mode-settings-config-noop-2026-06-16.txt` captures the
+    unsupported `[31.10]` probe.
   - Do not expose user-facing mode edit UI yet. Need find missing precondition
     or alternate sequence for `[31.6]` writes.

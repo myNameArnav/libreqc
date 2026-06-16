@@ -11,6 +11,7 @@ object PrinceCommands {
     private val modeConfigAddress = BmapAddress(31, 6)
     private val modeUserIndicesAddress = BmapAddress(31, 7)
     private val modeFavoritesAddress = BmapAddress(31, 8)
+    private val modeSettingsConfigAddress = BmapAddress(31, 10)
     private val eqAddress = BmapAddress(1, 7)
     private val shortcutAddress = BmapAddress(1, 9)
     private val multipointAddress = BmapAddress(1, 10)
@@ -175,6 +176,27 @@ object PrinceCommands {
             BmapOperator.SetGet,
             byteArrayOf(if (enabled) 1 else 0),
         )
+
+    fun setModeSettingsConfig(
+        cncLevel: Int,
+        autoCncEnabled: Boolean,
+        spatialAudio: SpatialAudioMode,
+        windBlockEnabled: Boolean,
+        ancToggleEnabled: Boolean,
+    ): ByteArray {
+        require(cncLevel in 0..255) { "CNC level must fit in one byte" }
+        return BmapPackets.encode(
+            modeSettingsConfigAddress,
+            BmapOperator.SetGet,
+            byteArrayOf(
+                cncLevel.toByte(),
+                if (autoCncEnabled) 1 else 0,
+                spatialAudio.value.toByte(),
+                if (windBlockEnabled) 1 else 0,
+                if (ancToggleEnabled) 1 else 0,
+            ),
+        )
+    }
 
     private fun encodeModeName(name: String): ByteArray {
         val bytes = name.encodeToByteArray()

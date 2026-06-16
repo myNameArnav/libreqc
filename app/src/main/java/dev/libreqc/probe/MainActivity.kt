@@ -61,6 +61,7 @@ import dev.libreqc.prince.PrinceCommands
 import dev.libreqc.prince.RememberedSource
 import dev.libreqc.prince.ShortcutAction
 import dev.libreqc.prince.ShortcutParser
+import dev.libreqc.prince.SpatialAudioMode
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
@@ -102,6 +103,8 @@ class MainActivity : ComponentActivity() {
             val verifyModeConfigIndex = intent.getIntExtra(EXTRA_VERIFY_MODE_CONFIG_INDEX, -1)
             if (verifyModeConfigIndex >= 0) {
                 startModeConfigWriteVerification(verifyModeConfigIndex)
+            } else if (intent.getBooleanExtra(EXTRA_VERIFY_MODE_SETTINGS_CONFIG, false)) {
+                startModeSettingsConfigWriteVerification()
             } else {
                 startProbe()
             }
@@ -156,6 +159,26 @@ class MainActivity : ComponentActivity() {
                 }
             },
             "libreqc-mode-config-write-intent",
+        ).start()
+    }
+
+    private fun startModeSettingsConfigWriteVerification() {
+        if (state.running) return
+        state = state.copy(status = "Verifying mode settings config write...", running = true)
+        Thread(
+            {
+                try {
+                    val adapter = BluetoothAdapter.getDefaultAdapter()
+                    val device = adapter?.let { selectDevice(it.bondedDevices) }
+                        ?: error("No bonded Bose BMAP device found")
+                    verifyModeSettingsConfigWrite(device)
+                    updateStatus("Mode settings config write verified", running = false)
+                } catch (error: Throwable) {
+                    line("mode settings config write failed %s: %s", error.javaClass.simpleName, error.message)
+                    updateStatus("Mode settings config write failed: ${error.message}", running = false)
+                }
+            },
+            "libreqc-mode-settings-config-write-intent",
         ).start()
     }
 
@@ -509,6 +532,71 @@ class MainActivity : ComponentActivity() {
     }
 
     @SuppressLint("MissingPermission")
+    private fun verifyModeSettingsConfigWrite(device: BluetoothDevice) {
+        device.createRfcommSocketToServiceRecord(SPP_UUID).use { socket ->
+            socket.connect()
+            val input = socket.inputStream
+            val output = socket.outputStream
+            val runner = ReadProbeRunner(ProbeLogListener())
+            runner.drain(input, 300)
+
+            val currentResult = exchange(
+                runner,
+                input,
+                output,
+                ReadProbe("audio_modes.settings_config.current", BmapAddress(31, 10)),
+            )
+            val current = currentResult.response()?.payload
+                ?: error("Mode settings config snapshot was unavailable")
+            check(current.size >= 5) {
+                "Mode settings config payload was too short: ${current.size}"
+            }
+            val cncLevel = current[0].toInt().and(0xff)
+            val autoCncEnabled = current[1].toInt() != 0
+            val spatialAudio = spatialAudioModeFromValue(current[2].toInt().and(0xff))
+            val windBlockEnabled = current[3].toInt() != 0
+            val ancToggleEnabled = current[4].toInt() != 0
+
+            val command = PrinceCommands.setModeSettingsConfig(
+                cncLevel = cncLevel,
+                autoCncEnabled = autoCncEnabled,
+                spatialAudio = spatialAudio,
+                windBlockEnabled = windBlockEnabled,
+                ancToggleEnabled = ancToggleEnabled,
+            )
+            line("tx mode.settings_config SETGET [31.10] %s", BmapDiagnostics.hex(command))
+            val writeResult = exchange(
+                runner,
+                input,
+                output,
+                ReadProbe(
+                    "audio_modes.settings_config.set",
+                    BmapAddress(31, 10),
+                    BmapOperator.SetGet,
+                    command.copyOfRange(4, command.size),
+                ),
+            )
+            check(writeResult.response()?.operator != BmapOperator.Error) {
+                "Mode settings config write was rejected"
+            }
+
+            val readBack = exchange(
+                runner,
+                input,
+                output,
+                ReadProbe("audio_modes.settings_config.verify", BmapAddress(31, 10)),
+            )
+            val updated = readBack.response()?.payload
+                ?: error("Mode settings config read-back was unavailable")
+            check(updated.take(5) == current.take(5)) {
+                "Mode settings config read-back mismatch: expected=${BmapDiagnostics.hex(current)} " +
+                    "got=${BmapDiagnostics.hex(updated)}"
+            }
+            line("mode settings config write verified payload=%s", BmapDiagnostics.hex(updated))
+        }
+    }
+
+    @SuppressLint("MissingPermission")
     private fun runProbe() {
         try {
             val adapter = BluetoothAdapter.getDefaultAdapter()
@@ -685,6 +773,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         private const val TAG = "LibreQCProbe"
         private const val EXTRA_VERIFY_MODE_CONFIG_INDEX = "verifyModeConfigIndex"
+        private const val EXTRA_VERIFY_MODE_SETTINGS_CONFIG = "verifyModeSettingsConfig"
         private const val PROBE_TIMEOUT_MS = 3_000L
         private const val PROBE_DELAY_MS = 150L
         private val BMAP_UUID = UUID.fromString("00000000-deca-fade-deca-deafdecacaff")
@@ -708,6 +797,10 @@ private fun promptFromConfig(config: ModeConfig): AudioModePrompt {
     return AudioModePrompt.entries.firstOrNull { it.byte1 == byte1 && it.byte2 == byte2 }
         ?: AudioModePrompt.None
 }
+
+private fun spatialAudioModeFromValue(value: Int): SpatialAudioMode =
+    SpatialAudioMode.entries.firstOrNull { it.value == value }
+        ?: SpatialAudioMode.Disabled
 
 private data class ProbeUiState(
     val deviceName: String = "LibreQC",

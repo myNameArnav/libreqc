@@ -1,0 +1,7 @@
+--------- beginning of main
+06-16 21:19:41.925  3762  3812 I LibreQCProbe: probe start name=audio_modes.settings_config.current address=[31.10]
+06-16 21:19:41.931  3762  3812 I LibreQCProbe: tx audio_modes.settings_config.current 1f0a0100
+06-16 21:19:41.993  3762  3812 I LibreQCProbe: rx chunk 1f0a040104
+06-16 21:19:41.996  3762  3812 I LibreQCProbe: frame [31.10] ERROR FunctionNotSupported(4) payload=04 correlation=related text=.
+06-16 21:19:41.997  3762  3812 I LibreQCProbe: probe result name=audio_modes.settings_config.current outcome=UNSUPPORTED elapsed_ms=66 error=FunctionNotSupported(4) unrelated=0
+06-16 21:19:41.999  3762  3812 I LibreQCProbe: mode settings config write failed IllegalStateException: Mode settings config payload was too short: 1

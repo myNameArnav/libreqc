@@ -223,6 +223,20 @@ class PrinceCommandsTest {
     }
 
     @Test
+    fun `encodes recovered mode settings config command`() {
+        assertContentEquals(
+            hex("1f0a02050500020001"),
+            PrinceCommands.setModeSettingsConfig(
+                cncLevel = 5,
+                autoCncEnabled = false,
+                spatialAudio = SpatialAudioMode.FixedToHead,
+                windBlockEnabled = false,
+                ancToggleEnabled = true,
+            ),
+        )
+    }
+
+    @Test
     fun `rejects invalid mode edit inputs`() {
         assertFailsWith<IllegalArgumentException> {
             PrinceCommands.setModeConfigBasic(
@@ -250,6 +264,15 @@ class PrinceCommandsTest {
         }
         assertFailsWith<IllegalArgumentException> {
             PrinceCommands.setDefaultMode(index = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            PrinceCommands.setModeSettingsConfig(
+                cncLevel = 256,
+                autoCncEnabled = false,
+                spatialAudio = SpatialAudioMode.Disabled,
+                windBlockEnabled = false,
+                ancToggleEnabled = false,
+            )
         }
     }
 
